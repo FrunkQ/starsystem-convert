@@ -419,17 +419,51 @@ function aggregateRings(
     }
     if (radiiKm.length < 50) continue;
     radiiKm.sort((a, b) => a - b);
-    nodes.push({
-      id: `${hostNode.id}-ring`,
+    const innerKm = Math.round(percentile(radiiKm, 0.05));
+    const outerKm = Math.round(percentile(radiiKm, 0.95));
+
+    // A RING ROUND A STAR IS A BELT, and the difference is not cosmetic. Universe Sandbox names
+    // every loose body "<Host> Ring Particle" whatever it is orbiting, so the asteroid belt arrives
+    // under exactly the same label as Saturn's rings — and the Sol save duly produced a "Sun Ring"
+    // spanning 2.6 to 3.9 AU, which the orrery would have drawn as a planetary ring wrapped round a
+    // star. SSG has `belt` as a first-class role for precisely this thing, and the engine's own
+    // generator emits one with a class, an orbit at the mid-radius and a debris mass; an imported
+    // belt is emitted the same way so nothing downstream can tell the two apart (owner, 2026-09-23).
+    const isBelt = (hostNode as CelestialBody).roleHint === 'star';
+    const node: CelestialBody = {
+      id: `${hostNode.id}-${isBelt ? 'belt' : 'ring'}`,
       parentId: hostNode.id,
-      name: `${host} Ring`,
+      name: `${host} ${isBelt ? 'Belt' : 'Ring'}`,
       kind: 'body',
-      roleHint: 'ring',
-      radiusInnerKm: Math.round(percentile(radiiKm, 0.05)),
-      radiusOuterKm: Math.round(percentile(radiiKm, 0.95)),
+      roleHint: isBelt ? 'belt' : 'ring',
+      radiusInnerKm: innerKm,
+      radiusOuterKm: outerKm,
       tags: []
-    } as CelestialBody);
-    counts.rings++;
-    assumptions.push(`${host}: a ring was reconstructed from ${radiiKm.length} US ring particles (inner/outer radii from their spread).`);
+    } as CelestialBody;
+
+    if (isBelt) {
+      node.classes = ['belt/asteroid'];
+      // A belt ORBITS, where a ring is simply attached to its planet: the generator gives one a
+      // circular orbit at the mid-radius, and the panels and the orrery read it.
+      const centreAU = ((innerKm + outerKm) / 2) / AU_KM;
+      const hostMassKg = (hostNode as CelestialBody).massKg ?? 0;
+      node.orbit = {
+        hostId: hostNode.id, t0: 0, hostMu: G * hostMassKg,
+        elements: { a_AU: centreAU, e: 0, i_deg: 0, Omega_deg: 0, omega_deg: 0, M0_rad: 0 }
+      };
+      // The generator randomises this as a density PROXY because it has nothing better. An import
+      // does: the particles carry real masses, so their sum is both more honest and lands in the
+      // same range the proxy spans (the real asteroid belt is ~4e21 kg, about 7e-4 Earth masses).
+      const debrisKg = group.reduce((s, pe) => s + (typeof pe.Mass === 'number' && pe.Mass > 0 ? pe.Mass : 0), 0);
+      if (debrisKg > 0) node.massKg = debrisKg;
+    }
+
+    nodes.push(node);
+    if (isBelt) counts.other++; else counts.rings++;
+    assumptions.push(
+      isBelt
+        ? `${host}: a belt was reconstructed from ${radiiKm.length} Universe Sandbox particles, orbiting at ${(((innerKm + outerKm) / 2) / AU_KM).toFixed(2)} AU (inner/outer radii from their spread). Universe Sandbox calls these "ring particles" whatever they orbit; round a star that is a belt.`
+        : `${host}: a ring was reconstructed from ${radiiKm.length} US ring particles (inner/outer radii from their spread).`
+    );
   }
 }

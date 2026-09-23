@@ -297,11 +297,26 @@ export function convertSc(sources: string[], options: ScImportOptions = {}): ScI
       const innerKm = num(ringBlock.keys.InnerRadius);
       const outerKm = num(ringBlock.keys.OuterRadius);
       if (innerKm != null && outerKm != null && outerKm > innerKm && innerKm > 0) {
-        nodes.push({
-          id: `${id}-ring`, parentId: id, name: `${name} Ring`, kind: 'body', roleHint: 'ring',
+        // A ring round a star is a BELT, the same rule the Universe Sandbox importer applies — SSG
+        // has `belt` as a first-class role and the orrery draws the two differently. SpaceEngine
+        // rarely puts rings on a star, but this block sits after the star/planet branch and would
+        // happily emit one, and two importers disagreeing about the same question is the fault this
+        // codebase keeps writing rules about.
+        const isBelt = role === 'star';
+        const ring: CelestialBody = {
+          id: `${id}-${isBelt ? 'belt' : 'ring'}`, parentId: id,
+          name: `${name} ${isBelt ? 'Belt' : 'Ring'}`, kind: 'body', roleHint: isBelt ? 'belt' : 'ring',
           radiusInnerKm: Math.round(innerKm), radiusOuterKm: Math.round(outerKm), tags: []
-        } as CelestialBody);
-        counts.rings++;
+        } as CelestialBody;
+        if (isBelt) {
+          ring.classes = ['belt/asteroid'];
+          ring.orbit = {
+            hostId: id, t0: 0, hostMu: G * (massOf.get(id) ?? 0),
+            elements: { a_AU: ((innerKm + outerKm) / 2) / AU_KM, e: 0, i_deg: 0, Omega_deg: 0, omega_deg: 0, M0_rad: 0 }
+          };
+        }
+        nodes.push(ring);
+        if (isBelt) counts.other++; else counts.rings++;
       }
     }
   }

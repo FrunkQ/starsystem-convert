@@ -98,8 +98,14 @@
   </section>
 {/if}
 
-<section class="prose">
-  <h2>What travels, and what does not</h2>
+<!-- FOLDED AWAY BY DEFAULT. This is the answer to a question somebody asks once — usually after a
+     conversion has surprised them — and leaving it open pushed the tool itself off the first screen.
+     `<details>` rather than a scripted toggle: it opens without JavaScript, it is keyboard-operable
+     and screen-reader-announced for free, and the browser finds the text inside it when someone hits
+     Ctrl+F. -->
+<details class="folded">
+  <summary><h2>What travels, and what does not</h2></summary>
+  <div class="prose">
   <p>
     A conversion carries <strong>numbers and hierarchy</strong>: masses, radii, orbits, rotation and
     tilt, interior composition, atmospheres, oceans, rings, and what orbits what. It does not carry
@@ -125,7 +131,8 @@
     produce numbers the engine immediately replaces. What you export carries what your source file
     actually stated — no more, and nothing invented.
   </p>
-</section>
+  </div>
+</details>
 
 <style>
   strong { color: var(--ink); font-weight: 600; }
@@ -155,6 +162,12 @@
   .found p { margin: 4px 0 0; color: var(--ink-dim); font-size: 0.94rem; }
   .pending { color: var(--ink-faint) !important; font-style: italic; }
 
-  .prose { margin: 48px 0 0; }
-  .prose h2 { margin-top: 28px; }
+  .folded { margin: 40px 0 0; border-top: 1px solid var(--edge); padding-top: 14px; }
+  /* The marker is the browser's own triangle; `display: block` on the summary keeps it on the same
+     line as the heading instead of the heading dropping beneath it. */
+  .folded summary { cursor: pointer; list-style-position: outside; color: var(--ink-dim); }
+  .folded summary:hover { color: var(--ink); }
+  .folded summary h2 { display: inline; font-size: 1.05rem; }
+  .folded .prose { margin: 14px 0 0; }
+  .folded .prose h2 { margin-top: 26px; font-size: 1rem; }
 </style>

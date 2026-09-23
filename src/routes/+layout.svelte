@@ -45,21 +45,18 @@
 </main>
 
 <footer>
+  <!-- The pitch is made at the top of the page. Down here somebody has already read it, so this is a
+       nudge rather than a second advert: one question, one line, one door. -->
   <div class="what">
-    <h2>Converted something? Open it in Star System Explorer</h2>
-    <p>
-      The Explorer takes it from here — it works out temperatures, climate and classification for
-      itself, and can fill in the moons, atmospheres and worlds your source file never held. Free, in
-      the browser, no account needed.
-    </p>
-    <a class="cta" href={LINKS.engine} target="_blank" rel="noopener noreferrer">Open the Explorer</a>
+    <h2>Want to see it?</h2>
+    <p>Star System Explorer will open what you just made.</p>
+    <a class="cta" href={LINKS.engine} target="_blank" rel="noopener noreferrer">Take a look</a>
   </div>
 
   <div class="foot-bottom">
     <p class="fan">
-      Star System Converter is a free companion tool for Star System Explorer. Universe Sandbox and
-      SpaceEngine are the work and trademarks of their own makers; this tool is not affiliated with
-      or endorsed by either, and reads and writes their file formats only.
+      Universe Sandbox and SpaceEngine are the work and trademarks of their own makers. This tool is
+      not affiliated with either, and only reads and writes their file formats.
     </p>
     <p class="small">
       <a href={LINKS.discordInvite} target="_blank" rel="noopener noreferrer">Discord</a>
