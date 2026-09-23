@@ -21,39 +21,27 @@
   </nav>
 </header>
 
-<!-- THE ADVERT, and it is placed where an advert goes: above the tool, on every page, before anybody
-     has scrolled. Somebody who arrived to convert a file is by definition a person who builds star
-     systems, which makes them exactly the person the Explorer is for — and the two things most
-     likely to stop them trying it are the two things it does not ask for, so those are the words
-     that carry rather than a feature list. -->
-<aside class="promo">
-  <div class="promo-in">
-    <div class="promo-title">
-      <PixelText text="Star System Explorer" scale={2} colour="var(--accent)" />
-    </div>
-    <p>
-      Opens every format on this page, and a lot more besides. Runs in your browser — no account, no
-      sign-up, no installation, nothing to pay. Build a system, age a star, fly the transfer, hand
-      your players a live map.
-    </p>
-    <a class="cta" href={LINKS.engine} target="_blank" rel="noopener noreferrer">Try it, free</a>
-  </div>
-</aside>
-
 <main id="main">
   {@render children()}
 </main>
 
 <footer>
-  <!-- The pitch is made at the top of the page. Down here somebody has already read it, so these are
-       nudges rather than a second advert: two doors, a question each, no argument. They are two
-       different people, which is why they are two blocks rather than one paragraph with two links —
-       somebody who has just converted a file wants to open it, and somebody who has not yet decided
-       the tool is for them is better served by other people's work than by more of our copy. -->
+  <!-- THE EXPLORER'S PITCH LIVES HERE, at the bottom on purpose: by here somebody has used the tool,
+       and the offer is for them. (The star lookup also points at it, but only where it answers a need
+       the page cannot - a whole neighbourhood, or the planets the catalogues never found.)
+       Two doors, a question each, because they are two different people - one has just made
+       something and wants to open it, the other has not decided yet and is better served by other
+       people's work than by more of our copy. -->
   <div class="doors">
     <div class="door">
       <h2>Want to see it?</h2>
-      <p>Star System Explorer will open what you just made.</p>
+      <!-- The pitch that used to sit in a strip above the tool. Owner, 2026-09-23: push the Explorer,
+           but not that hard - so it waits down here for somebody who has already made something. -->
+      <p>
+        Star System Explorer will open what you just made, and a lot more besides. It runs in your
+        browser &mdash; no account, no sign-up, nothing to install or pay for. Build a system, age a
+        star, fly the transfer, hand your players a live map.
+      </p>
       <a class="cta" href={LINKS.engine} target="_blank" rel="noopener noreferrer">Take a look</a>
     </div>
     <div class="door">
@@ -88,35 +76,4 @@
 
 <style>
   .mark-sub { color: var(--ink-faint); font-weight: 500; }
-
-  .promo {
-    border-bottom: 1px solid var(--edge);
-    background: linear-gradient(180deg, #121a2c 0%, var(--bg) 100%);
-  }
-  .promo-in {
-    max-width: var(--max);
-    margin: 0 auto;
-    padding: 16px 20px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px 24px;
-  }
-  /* The pixel title sits in its own full-width ROW, but the SVG inside must keep its natural size.
-     An <svg> made a flex item and told to fill the row stretches, and its viewBox then centres the
-     drawing inside all that width — so the title silently centred itself. The wrapper takes the
-     row; the SVG keeps its own width attribute. */
-  .promo-title { flex-basis: 100%; line-height: 0; }
-  .promo-in p {
-    margin: 0;
-    color: var(--ink-dim);
-    font-size: 0.94rem;
-    max-width: 62ch;
-    flex: 1 1 34ch;
-  }
-  /* `margin-left: auto` only where there is a bar for the button to sit at the end of. On a phone
-     everything stacks and a lone button shoved to the right edge reads as a mistake. */
-  @media (min-width: 760px) {
-    .promo-in .cta { margin-left: auto; }
-  }
 </style>

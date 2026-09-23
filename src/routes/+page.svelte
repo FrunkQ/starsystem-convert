@@ -4,6 +4,7 @@
   import { OUTPUTS, writeFor, download } from '$lib/convert/output';
   import { resolveStar, systemsAround, nameOf, distanceLyOf, type SimbadRow } from '$lib/convert/realsky';
   import { LINKS, HOW_TO } from '$lib/links';
+  import PixelText from '$lib/components/PixelText.svelte';
 
   type Phase = 'idle' | 'loaded' | 'working' | 'done' | 'error';
 
@@ -170,7 +171,9 @@
 
 <svelte:head><title>Star System Converter</title></svelte:head>
 
-<h1>Star System Converter</h1>
+<!-- The name in the hub's 5x7 pixel face - the one retro touch the family shares. The SVG carries its
+     own label, so the heading reads as text to a screen reader and to search. -->
+<h1 class="pixel-title" aria-label="Star System Converter"><PixelText text="Star System Converter" scale={4} /></h1>
 <p class="lede">
   Move a star system between <strong>Universe Sandbox</strong>, <strong>SpaceEngine</strong> and
   <strong>Star System Explorer</strong>, or pull a real one out of the star catalogues. Files you drop
@@ -422,6 +425,7 @@
 
 <style>
   strong { color: var(--ink); font-weight: 600; }
+  .pixel-title { line-height: 0; margin: 4px 0 18px; color: var(--ink); }
 
   .drop {
     border: 1px dashed var(--edge); border-radius: var(--radius);
