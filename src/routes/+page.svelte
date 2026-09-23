@@ -24,7 +24,16 @@
   // The mass slider is logarithmic because the range it covers is: a ring particle and a gas giant
   // are twelve orders of magnitude apart, and a linear control spends all its travel in the last
   // inch. Bodies at or above the threshold are converted.
-  let logThreshold = $state(20);
+  //
+  // RIGHT MEANS MORE (owner, 2026-09-23). The slider used to BE the mass threshold, so dragging right
+  // raised the cut-off and took bodies away - backwards from every other "how much" control. It is
+  // now a mirror of the threshold: far left brings the heaviest body alone, far right brings
+  // everything. Its ends are the file's own lightest and heaviest bodies, as in the engine's import
+  // dialogue, so none of its travel is spent on masses the file does not contain.
+  let logMin = $state(15);
+  let logMax = $state(30);
+  let sliderPos = $state(20);
+  const logThreshold = $derived(logMin + logMax - sliderPos);
   const threshold = $derived(Math.pow(10, logThreshold));
   // log10 -> pow10 does not round-trip exactly, and the error lands exactly on the body whose own
   // mass set an endpoint. A hair of tolerance keeps the boundary body counted, and the SAME number
@@ -113,7 +122,6 @@
       subtitle = adapter.subtitle(raw);
       systems = adapter.systems(raw);
       loadBodies();
-      logThreshold = adapter.massSlider ? Math.log10(adapter.recommendedMinMass) : 0;
       phase = 'loaded';
     } catch (e) {
       problem = `${f.name} could not be read: ${(e as Error).message}`;
@@ -124,6 +132,14 @@
   function loadBodies() {
     if (!adapter || !bytes) return;
     try { bodies = adapter.bodies(bytes, chosen); } catch { bodies = []; }
+    // Fit the slider to THIS system's bodies, and start it at the recommended cut-off, clamped into
+    // that range - a file whose lightest body is heavier than the recommendation starts at "all".
+    const logs = bodies.filter((b) => b.mass > 0).map((b) => Math.log10(b.mass));
+    if (!logs.length) return;
+    logMin = Math.min(...logs);
+    logMax = Math.max(...logs);
+    const start = Math.min(logMax, Math.max(logMin, Math.log10(adapter.recommendedMinMass || 1)));
+    sliderPos = logMin + logMax - start;
   }
 
   function pick(i: number) { chosen = i; loadBodies(); }
@@ -218,6 +234,13 @@
       <span class="cta">Choose a file</span>
     </label>
     <p class="hint">.ubox &middot; .sc &middot; .pak &middot; .json &middot; .sse.zip</p>
+    <!-- Said where the file goes in, not only inside the folded explanation below: somebody dropping
+         a save with a hand-painted planet in it should know before they start that the painting is
+         not coming. -->
+    <p class="dataonly">
+      Converts the system&rsquo;s <strong>data</strong> only &mdash; stars, planets, orbits, masses,
+      composition. Textures, 3D models and render settings stay behind.
+    </p>
   </section>
 
   <!-- A REAL STAR, AS THE SECOND WAY IN. No file needed: the catalogues are the source. It sits
@@ -301,7 +324,8 @@
     {#if adapter?.massSlider && bodies.length}
       <div class="field">
         <span class="label">How much to bring across</span>
-        <input type="range" min="15" max="30" step="0.1" bind:value={logThreshold} />
+        <input type="range" min={logMin} max={logMax} step="any" bind:value={sliderPos} aria-label="How much to bring across" />
+        <div class="ends" aria-hidden="true"><span>Just the biggest</span><span>Everything</span></div>
         <p class="hint left">
           <strong>{included}</strong> of {bodies.length} bodies — everything down to {fmtMass(threshold)}.
           {#if included > 150}<br /><em>That is a lot of bodies; the conversion may take a moment.</em>{/if}
@@ -435,6 +459,7 @@
   .drop.dragging { border-color: var(--accent); background: var(--panel-2); }
   .drop-title { margin: 0 0 14px; color: var(--ink-dim); }
   .hint { font-size: 0.82rem; color: var(--ink-faint); margin: 14px 0 0; }
+  .dataonly { margin: 12px auto 0 !important; max-width: 52ch; font-size: 0.86rem; color: var(--ink-dim) !important; }
   .hint.left { text-align: left; margin: 8px 0 0; }
   .browse input { display: none; }
   .browse .cta { cursor: pointer; }
@@ -452,6 +477,7 @@
   .field { margin: 20px 0 0; }
   .label { display: block; color: var(--ink-dim); font-size: 0.9rem; margin-bottom: 8px; }
   .field input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .ends { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--ink-faint); margin-top: 2px; }
 
   .choices { display: flex; flex-wrap: wrap; gap: 8px; }
   .choice {
