@@ -1,0 +1,96 @@
+// VENDORED from Star System Explorer, src/lib/constants.ts — copied on 2026-09-23.
+// DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the
+// two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import
+// paths and the declared substitutions in that script are the only intended differences.
+// src/lib/constants.ts
+// APP_VERSION / APP_DATE are derived from the build stamp injected by vite.config
+// (__BUILD_INFO__) so the About box never goes stale: version tracks package.json,
+// date is the build date. The typeof guard keeps it safe if the define is absent.
+const _buildInfo = typeof __BUILD_INFO__ !== 'undefined' ? __BUILD_INFO__ : null;
+export const APP_VERSION = _buildInfo?.version ?? '2.0.0-alpha';
+// The commit this build came from, and a one-line stamp for a tooltip. Same source as the About
+// box and the build footer, so a version read off the brand mark and one read off the footer can
+// never disagree.
+export const APP_COMMIT = _buildInfo?.commit ?? 'dev';
+export const APP_BUILD_STAMP = `Star System Explorer v${_buildInfo?.version ?? '2.0.0-alpha'}`
+  + (_buildInfo?.commit ? ` · ${_buildInfo.commit}` : '')
+  + (_buildInfo?.time ? ` · built ${new Date(_buildInfo.time).toLocaleString('en-GB')}` : '');
+
+export const APP_DATE = _buildInfo?.time
+	? new Date(_buildInfo.time)
+			.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' })
+			.replace(/ /g, '-')
+	: '12-Apr-26';
+
+export const G = 6.67430e-11; // Gravitational constant
+export const UNIVERSAL_GAS_CONSTANT = 8.31446; // J/(mol·K)
+export const AU_KM = 149597870.7;
+// Interstellar scales
+export const C_MS = 299792458;                  // speed of light, m/s
+export const LY_M = 9.4607304725808e15;         // light-year, m
+export const PC_M = 3.0856775814913673e16;      // parsec, m
+export const JULIAN_YEAR_S = 31557600;          // seconds in a Julian year (365.25 d)
+export const SOLAR_MASS_KG = 1.989e30;
+export const SOLAR_RADIUS_KM = 696340;
+export const EARTH_MASS_KG = 5.972e24;
+export const EARTH_RADIUS_KM = 6371;
+// Luna. Added for the size-comparison ruler, whose three reference ticks are Luna, Earth and the
+// Sun: the other two were already here and the Moon was nowhere in the codebase at all, so the
+// view would have had to invent one. NB `src/lib/import/realsky/constants.mjs` carries a SECOND
+// SOLAR_RADIUS_KM (695,700 against this file's 696,340) — the app reads this one; the duplicate is
+// recorded on the board, not folded in from here.
+export const LUNA_RADIUS_KM = 1737.4;
+// THE REST OF THE SIZE-COMPARISON RULER'S LADDER. Owner, 2026-09-06: *"add more common sizes -
+// jupiter sun... and a few bigger/smaller - to make the ruler at the bottom more useful and
+// interesting"*. Every one is a body a reader already has a feel for, and they are spaced roughly a
+// half-order apart so that at ANY zoom two or three of them are legible on screen and the rest fall
+// outside the window on their own — the ruler picks itself. Mean radii, in km.
+export const CERES_RADIUS_KM = 469.7;
+export const MARS_RADIUS_KM = 3389.5;
+export const NEPTUNE_RADIUS_KM = 24622;
+export const JUPITER_RADIUS_KM = 69911;
+// A red supergiant, for the top of the ladder — 764 solar radii, the figure the app's own example
+// data uses. Without something at this end a star map's ruler stops at the Sun and says nothing
+// about the objects a GM is actually looking at up there.
+export const BETELGEUSE_RADIUS_KM = 531514800;
+// Matches the bundled Sol data (Jupiter stores massKg 1.898e27), so Jupiter reads exactly 1.000
+// at the M-Jup ladder stop rather than 0.9996.
+export const JUPITER_MASS_KG = 1.898e27;
+// The icy hydrostatic-equilibrium ("round") limit, ~Mimas-sized. Below this a body lacks the self-
+// gravity to differentiate a shell-over-interior, sustain a subsurface ocean, or cryovolcano — a small
+// tidally-stressed lump (Phobos/Deimos) is shredded, not warmed to melt. Keeps Enceladus (~252 km).
+export const HYDROSTATIC_MIN_RADIUS_KM = 200;
+export const EARTH_GRAVITY = 9.80665; // m/s^2
+export const EARTH_DENSITY = 5514; // kg/m^3
+
+// Radiometry — the surface-spectrum model (physics/spectrum.ts). Planck's law needs h and k; the
+// solar constant is the SCALE that turns a star's luminosity into an irradiance at a distance, and
+// it is the one calibration anchor in the spectral chain (Sol at 1 AU).
+export const PLANCK_H = 6.62607015e-34;         // J·s (exact, SI 2019)
+export const BOLTZMANN_K = 1.380649e-23;        // J/K (exact, SI 2019)
+export const AVOGADRO = 6.02214076e23;          // mol⁻¹ (exact, SI 2019) — atmospheric column density
+export const SOLAR_CONSTANT_WM2 = 1361;         // W/m² — total solar irradiance at 1 AU
+export const STEFAN_BOLTZMANN_CONSTANT = 5.670374419e-8; // W m⁻² K⁻⁴ (exact, SI 2019)
+
+// Unshielded radiation dose at 1 AU from a Sun-like star (mSv/year)
+// Approx baseline for GCR + Solar Particle Events in free space.
+export const RADIATION_UNSHIELDED_DOSE_MSV_YR = 500;
+
+// Liquid solvent definitions — SINGLE source of truth, in src/lib/data/liquids.json (imported here so
+// it works in both dev and prod — a public /static import breaks the Vite dev server). This is the
+// built-in engine default; a rule pack may still override it by shipping its own liquids.json, which
+// the loader merges into pack.liquids (allLiquids(pack) prefers the pack copy). Edit the JSON only.
+import type { LiquidDef } from './types';
+import LIQUIDS_JSON from './data/liquids.json';
+export type { LiquidDef };
+export const LIQUIDS: LiquidDef[] = LIQUIDS_JSON as unknown as LiquidDef[];
+
+export const THERMAL_LIMITS: Record<string, number> = {
+    'none': 3.0,        // Minimal drag pass, structural limit
+    'ceramic': 12.0,    // Space Shuttle / Starship style
+    'ablative': 20.0,   // Apollo / Stardust style (High speed return)
+    'magnetic': 50.0,   // Active plasma shielding
+    'forcefield': 500.0 // Sci-fi shielding
+};
+
+export const DEFAULT_AEROBRAKE_LIMIT_KM_S = THERMAL_LIMITS['none'];
