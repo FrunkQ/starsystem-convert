@@ -1,7 +1,7 @@
 // VENDORED from Star System Explorer, src/lib/types.ts — copied on 2026-09-23.
 // DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the
 // two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import
-// paths and the declared substitutions in that script are the only intended differences.
+// paths and that script's declared substitutions are the only intended differences.
 // ===== types.ts =====
 import type { OrbitalBoundaries } from './stubs';
 import type { CircumbinaryAnnulus } from './stubs';
@@ -583,7 +583,7 @@ export interface StellarType {
   variant?: string;
   /** The MK luminosity class AS WRITTEN: 'Ia', 'Iab', 'Ib', 'II', 'III', 'IV', 'V', 'VI'. Absent
    *  when the catalogue does not state one, which is the common case and must stay distinguishable
-   *  from "stated as V". */
+   *  from 'stated as V'. */
   luminosity?: string;
   /** The luminosity class NORMALISED to the three bands the rule pack carries: 'I' (supergiant),
    *  'III' (giant), 'V' (main sequence). `II` folds up to I and `IV`/`VI` fold to V. This is the
@@ -805,6 +805,24 @@ export interface CelestialBody extends NodeBase, PhysicalParameters {
   hydrosphere?: Hydrosphere;
   makeup?: Makeup;            // bulk interior composition (drives density/radius)
   biosphere?: Biosphere;
+  // (see also `SystemNode` further down, a type two files import and nothing declared)
+  // FOUR MORE FIELDS THAT WERE ONLY EVER UNDECLARED, found the same way as `magneticField` below —
+  // by type-checking this file in a project that actually runs `tsc`. Each is written and read across
+  // four to eight files here and appears in no interface, so every use of one was an unresolved
+  // property that nothing complained about, because `npm run build` does not typecheck.
+  /** Surface temperature in K, as the delta-V and ascent code reads it. */
+  surfaceTempKelvin?: number;
+  /** Delta-V to low orbit, m/s. */
+  loDeltaVBudget_ms?: number;
+  /** Delta-V to land under power, m/s. */
+  propulsiveLandBudget_ms?: number;
+  /** Delta-V to land with an aerobrake, m/s. */
+  aerobrakeLandBudget_ms?: number;
+  /** A construct's authored map glyph and its colour (`kind: 'construct'` only). `getNodeColor` reads
+   *  the colour, the guide document and the editor write both, and neither was declared. */
+  icon_type?: string;
+  icon_color?: string;
+
   // `magneticField`, not `magnetic_field`. This declared a name NOTHING in the codebase has ever
   // used: `SystemProcessor` writes `body.magneticField`, thirty files read it, and every save on
   // disk carries `"magneticField"` (Regina: 25 of them, and not one `magnetic_field`). So the type
@@ -995,6 +1013,16 @@ export interface Barycenter extends NodeBase {
   // physics/circumbinary.ts.
   circumbinary?: CircumbinaryAnnulus;
 }
+
+/**
+ * A NODE IN A SYSTEM: a body or a barycentre.
+ *
+ * Two files import this by name — `rendering/colors.getNodeColor` and `BodyPicker` — and nothing
+ * declared it, so both were referring to a type that did not exist. Types are erased, so nothing ran
+ * wrong and `npm run build` never asked; it surfaced only when these types were checked in a project
+ * that runs `tsc`. Defined here as what both call sites plainly mean.
+ */
+export type SystemNode = CelestialBody | Barycenter;
 
 export interface System {
   id: ID; name: string; seed: string; epochT0: number; age_Gyr: number;

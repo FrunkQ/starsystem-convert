@@ -1,24 +1,25 @@
-// COPY THE IMPORT CODE OVER FROM THE ENGINE.
+// COPY THE IMPORT AND EXPORT CODE OVER FROM THE ENGINE.
 //
 // The owner's decision (2026-09-23): this repo COPIES from Star System Explorer rather than sharing a
 // package with it. Fixes are applied in both places by hand and are expected to be rare, because the
 // copied surface is parsers and geometry — the part of the engine that changes least — and not the
 // physics model, which does change and which this tool deliberately does not run.
 //
-// This script is the copy mechanism, not a sync system. It exists so that "copy it again" is one
-// command with a written-down list rather than a person remembering eleven paths at midnight, and so
-// that the PATCHES below are declared in one legible place instead of being discovered later as
-// mysterious differences. Run it, read the diff, commit.
+// IT FOLLOWS THE IMPORTS RATHER THAN BEING TOLD THE FILES. An earlier version carried a hand-written
+// list of fourteen paths, which was fine until the exporters arrived needing fourteen more. A list
+// like that is only correct on the day it is written: the engine adds an import, the copy silently
+// lacks a file, and the failure surfaces as "module not found" a long way from the cause. So the
+// entry points are named, the closure is walked, and the SUBSTITUTIONS below are the only things the
+// walk is told to stop at.
 //
 //   node scripts/vendor.mjs ../star-system-explorer-v2/sse2-convert
 //
-// WHAT IS NOT COPIED, and why it matters. The two star-physics helpers the engine's converters call,
-// `guessSystemAge` and `resolveImportedStarClass`, drag 3,200 lines across 16 files at runtime —
-// stellar evolution, the star generator, the RNG, BodyFactory, star imagery, ionising output. A format
-// converter has no business carrying any of it, and the engine RE-RESOLVES both on load anyway
-// (`importFixup.resolveLegacyStarClass` against the GM's own rule pack, which is why the converters
-// set `autoClassify`). So they are replaced by `../starClass.ts` and `../systemAge.ts`, which pass
-// through what the source file actually stated and leave the engine to do the rest.
+// WHAT IS SUBSTITUTED, AND WHY EACH ONE EARNS IT. `guessSystemAge` and `resolveImportedStarClass`
+// drag stellar evolution, the star generator, the RNG, BodyFactory and star imagery into a tool whose
+// premise is that it runs no physics — and the engine re-resolves both on arrival anyway, which is
+// why its importers set `autoClassify`. The other four are single leaf functions living in modules of
+// 900 and 578 lines whose own closures reach the tag system and Lagrange. Copying a function is
+// honest; copying its module to reach it would bring half the engine.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -32,114 +33,138 @@ if (!fs.existsSync(SRC)) {
   console.error(`No src/lib under ${engine} — is that an engine checkout?`);
   process.exit(2);
 }
-
 const OUT = path.resolve('src/lib/vendor');
 
-/** Files copied as-is from the engine's src/lib, to the same relative path under src/lib/vendor. */
-const FILES = [
-  'types.ts',
-  'constants.ts',
-  'data/liquids.json',
-  'import/shared/zip.ts',
-  'import/shared/review.ts',
-  'import/ubox/types.ts',
-  'import/ubox/parse.ts',
-  'import/ubox/kepler.ts',
-  'import/ubox/hierarchy.ts',
-  'import/ubox/convert.ts',
-  'import/ubox/review.ts',
+/** Where the walk starts: everything this tool actually calls. */
+const ENTRIES = [
   'import/ubox/index.ts',
-  'import/spaceengine/parse.ts',
-  'import/spaceengine/convert.ts',
-  'import/spaceengine/index.ts'
+  'import/spaceengine/index.ts',
+  'export/ubox/write.ts',
+  'export/spaceengine/write.ts'
 ];
 
 /**
- * PATCHES, applied to every copied file after the `$lib/` rewrite.
- *
- * Each one is a deliberate divergence from the engine and has to be justified here, because an
- * undeclared difference between the two copies is the thing that makes a copied codebase rot. Order
- * matters: the `$lib/` rewrite runs first, so these match the REWRITTEN text.
+ * Modules the walk STOPS at, and what replaces them. The value is a path relative to src/lib/vendor;
+ * the copier works out how many `../` each importing file needs.
  */
-// `{up}` is replaced with however many `../` it takes to get from THIS file back to src/lib/vendor.
-// Hardcoding `../` instead put `import/spaceengine/convert.ts` two directories deep looking for
-// `import/physics`, and every one of those failures reads as "module not found" a long way from the
-// line that caused it.
-const PATCHES = [
-  // The two heavy star-physics helpers, swapped for the converter's own pass-through versions.
-  [/from '(?:\.\.\/)+physics\/systemAge'/g, "from '{up}systemAge'"],
-  [/from '(?:\.\.\/)+physics\/importedStarClass'/g, "from '{up}starClass'"],
-  // Two leaf functions living in 900- and 578-line modules whose closures are enormous. Extracted
-  // verbatim into vendor/physics.ts, which records where each came from.
-  [/from '(?:\.\.\/)+physics\/stability'/g, "from '{up}physics'"],
-  [/from '(?:\.\.\/)+physics\/barycenterReconcile'/g, "from '{up}physics'"],
-  [/from '(?:\.\.\/)+system\/barycentres'/g, "from '{up}physics'"],
-  // One constant, from a 408-line module that exists to talk to sky catalogues.
-  [/from '(?:\.\.\/)+import\/realsky\/stars\.mjs'/g, "from '{up}physics'"],
-  // Two more type-only imports, written inline rather than in the import block.
-  [/import\('\.\/player\/presetTypes'\)/g, "import('./stubs')"],
-  // types.ts pulls eight TYPE-ONLY imports from modules this tool has no use for. They are erased at
-  // runtime, so the shapes come from stubs rather than 3,000 lines of engine.
-  [/from '\.\/physics\/orbits'/g, "from './stubs'"],
-  [/from '\.\/physics\/circumbinary'/g, "from './stubs'"],
-  [/from '\.\/physics\/geoActivity'/g, "from './stubs'"],
-  [/from '\.\/physics\/volatileRetention'/g, "from './stubs'"],
-  [/from '\.\/system\/classification'/g, "from './stubs'"],
-  [/from '\.\/traveller\/types'/g, "from './stubs'"],
-  [/from '\.\/transit\/types'/g, "from './stubs'"],
-  [/from '\.\/rulepackDelta'/g, "from './stubs'"]
-];
+const SUBSTITUTIONS = {
+  'physics/systemAge': 'systemAge',
+  'physics/importedStarClass': 'starClass',
+  'physics/stability': 'physicsLeaf',
+  'physics/barycenterReconcile': 'physicsLeaf',
+  'system/barycentres': 'physicsLeaf',
+  'import/realsky/stars.mjs': 'physicsLeaf',
+  // `computeWorldStates3D` asks this where a docked ship sits; it reaches the mega-construct
+  // catalogue and its geometry, which imports three.js — a 3D rendering library, in a text converter.
+  // Constructs cannot travel to either target format anyway, so the branch is unreachable here.
+  'constructs/docking': 'noConstructs'
+};
 
 /**
- * `$lib/x/y` → the right number of `../` to reach src/lib/vendor/x/y from this file.
+ * Type-only imports IN `types.ts` ONLY, describing fields this tool never reads. See vendor/stubs.ts.
  *
- * BOTH SPELLINGS. A statement import (`from '$lib/types'`) is the obvious one, but the engine also
- * writes inline type-imports (`Record<string, keyof import('$lib/types').Makeup>`), and rewriting
- * only the first left five live `$lib` references behind in one file — which resolve to nothing here
- * and fail at type-check, a long way from the line that caused them.
+ * Scoped to that one file deliberately. Applied everywhere, `physics/orbits` on this list also caught
+ * `constructs/docking`'s real, value-level import of `parkingOrbitRadiusKm` from the same module and
+ * pointed it at a stub that does not export it — a list meant to erase eight unused type references
+ * quietly breaking a working one.
  */
-function rewriteLibPaths(text, relPath) {
-  const depth = relPath.split('/').length - 1;
-  const up = depth === 0 ? './' : '../'.repeat(depth);
-  return text
-    .replace(/from '\$lib\/([^']+)'/g, (_m, p) => `from '${up}${p}'`)
-    .replace(/import\('\$lib\/([^']+)'\)/g, (_m, p) => `import('${up}${p}')`);
+const TYPE_STUB_HOST = 'types.ts';
+const TYPE_STUBS = [
+  'physics/orbits', 'physics/circumbinary', 'physics/geoActivity', 'physics/volatileRetention',
+  'system/classification', 'traveller/types', 'transit/types', 'rulepackDelta', 'player/presetTypes'
+];
+
+const rel = (abs) => path.relative(SRC, abs).split(path.sep).join('/');
+
+function resolveSpec(spec, fromAbs) {
+  let p;
+  if (spec.startsWith('$lib/')) p = path.join(SRC, spec.slice(5));
+  else if (spec.startsWith('.')) p = path.resolve(path.dirname(fromAbs), spec);
+  else return null;                                   // a bare package (fflate) — left alone
+  for (const c of [p, p + '.ts', p + '.mjs', p + '.js', path.join(p, 'index.ts')]) {
+    if (fs.existsSync(c) && fs.statSync(c).isFile()) return c;
+  }
+  return null;
 }
 
+/** Every module specifier in a file, from both `from '...'` and inline `import('...')`. */
+function specifiersIn(text) {
+  const out = [];
+  const from = /(?:^|\n)\s*(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?)\bfrom\s+['"]([^'"]+)['"]/g;
+  const inline = /import\(\s*['"]([^'"]+)['"]\s*\)/g;
+  let m;
+  while ((m = from.exec(text))) out.push(m[1]);
+  while ((m = inline.exec(text))) out.push(m[1]);
+  return out;
+}
+
+/** Is this specifier one we stop at? Returns the vendor-relative replacement, or null. */
+const substitutionFor = (spec) => {
+  const key = spec.replace(/^\$lib\//, '').replace(/^\.\.?\//, '');
+  for (const [from, to] of Object.entries(SUBSTITUTIONS)) {
+    if (key === from || spec.endsWith(from)) return to;
+  }
+  return null;
+};
+const isTypeStub = (spec, key) => key === TYPE_STUB_HOST && TYPE_STUBS.some((t) => spec.endsWith(t));
+
+// --- walk ----------------------------------------------------------------------------------------
+const wanted = new Set();
+function walk(abs) {
+  const key = rel(abs);
+  if (wanted.has(key)) return;
+  wanted.add(key);
+  if (key.endsWith('.json')) return;
+  const text = fs.readFileSync(abs, 'utf8');
+  for (const spec of specifiersIn(text)) {
+    if (substitutionFor(spec) || isTypeStub(spec, key)) continue;
+    const target = resolveSpec(spec, abs);
+    if (target) walk(target);
+  }
+}
+for (const e of ENTRIES) {
+  const abs = path.join(SRC, e);
+  if (!fs.existsSync(abs)) { console.error(`MISSING entry in engine: ${e}`); process.exit(1); }
+  walk(abs);
+}
+
+// --- copy ----------------------------------------------------------------------------------------
 const stamp = new Date().toISOString().slice(0, 10);
-let head = '';
-try {
-  head = fs.readFileSync(path.resolve(engine, '.git/HEAD'), 'utf8').trim();
-} catch { /* a checkout without .git is still a usable source */ }
-
 let copied = 0;
-for (const rel of FILES) {
-  const from = path.join(SRC, rel);
-  if (!fs.existsSync(from)) {
-    console.error(`MISSING in engine: ${rel}`);
-    process.exit(1);
-  }
-  let text = fs.readFileSync(from, 'utf8');
-  const depth = rel.split('/').length - 1;
+for (const key of [...wanted].sort()) {
+  const from = path.join(SRC, key);
+  const depth = key.split('/').length - 1;
   const up = depth === 0 ? './' : '../'.repeat(depth);
+  let text = fs.readFileSync(from, 'utf8');
 
-  if (!rel.endsWith('.json')) {
-    text = rewriteLibPaths(text, rel);
-    for (const [re, to] of PATCHES) text = text.replace(re, to.replaceAll('{up}', up));
+  if (!key.endsWith('.json')) {
+    // Every specifier is rewritten in one pass, so a substitution and a plain path cannot disagree
+    // about how many `../` they need.
+    const rewrite = (spec) => {
+      const sub = substitutionFor(spec);
+      if (sub) return `${up}${sub}`;
+      if (isTypeStub(spec, key)) return `${up}stubs`;
+      if (spec.startsWith('$lib/')) return `${up}${spec.slice(5)}`;
+      return spec;                                     // relative or bare — already correct
+    };
+    text = text
+      .replace(/(\bfrom\s+)['"]([^'"]+)['"]/g, (m, pre, spec) => `${pre}'${rewrite(spec)}'`)
+      .replace(/(\bimport\(\s*)['"]([^'"]+)['"]/g, (m, pre, spec) => `${pre}'${rewrite(spec)}'`);
   }
 
-  // A JSON file takes no banner: it is data, and a comment would make it unparseable.
-  const banner = rel.endsWith('.json') ? '' :
-    `// VENDORED from Star System Explorer, src/lib/${rel} — copied on ${stamp}.\n` +
+  const banner = key.endsWith('.json') ? '' :
+    `// VENDORED from Star System Explorer, src/lib/${key} — copied on ${stamp}.\n` +
     `// DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the\n` +
     `// two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import\n` +
-    `// paths and the declared substitutions in that script are the only intended differences.\n`;
+    `// paths and that script's declared substitutions are the only intended differences.\n`;
 
-  const to = path.join(OUT, rel);
+  const to = path.join(OUT, key);
   fs.mkdirSync(path.dirname(to), { recursive: true });
   fs.writeFileSync(to, banner + text);
   copied++;
 }
 
+let head = '';
+try { head = fs.readFileSync(path.resolve(engine, '.git/HEAD'), 'utf8').trim(); } catch { /* fine */ }
 console.log(`vendored ${copied} files from ${path.resolve(engine)}${head ? ` (${head})` : ''}`);
 console.log('Read the diff before committing — an unexpected change is the engine having moved.');

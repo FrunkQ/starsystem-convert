@@ -16,7 +16,7 @@
 // "M1.5Iab"), and the engine once kept only the first letter — so a K giant imported as a K dwarf.
 // The stated designation is therefore kept exactly as written, and the band is derived from it rather
 // than replacing it.
-import { UNKNOWN_STAR_CLASS } from './physics';
+import { UNKNOWN_STAR_CLASS } from './physicsLeaf';
 
 export interface ImportedStarInput {
   /** A designation the source file stated, e.g. "G2V". Wins over everything when present. */

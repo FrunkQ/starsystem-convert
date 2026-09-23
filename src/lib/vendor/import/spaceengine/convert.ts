@@ -1,18 +1,22 @@
 // VENDORED from Star System Explorer, src/lib/import/spaceengine/convert.ts — copied on 2026-09-23.
 // DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the
 // two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import
-// paths and the declared substitutions in that script are the only intended differences.
+// paths and that script's declared substitutions are the only intended differences.
 // SpaceEngine (.sc) import — map parsed blocks to an SSG System (authored inputs only). Design §3/§6a.
 import { G, AU_KM, EARTH_MASS_KG, SOLAR_MASS_KG, SOLAR_RADIUS_KM } from '../../constants';
 import { guessSystemAge } from '../../systemAge';
 import { resolveImportedStarClass } from '../../starClass';
-import { pairThresholds } from '../../physics';
-import { UNKNOWN_STAR_CLASS } from '../../physics';
+import { pairThresholds } from '../../physicsLeaf';
+import { UNKNOWN_STAR_CLASS } from '../../physicsLeaf';
 import type { System, CelestialBody, Barycenter, Kepler, Makeup } from '../../types';
 import { parseSc, readScSources, isBarycentreType, type ScBlock } from './parse';
 import type { ReferenceSnapshot, SkippedEntity, ImportCounts } from '../shared/review';
 
 export const SE_RECOMMENDED_MIN_MASS_KG = 1e20; // keeps major moons + dwarf planets; below = small bodies
+
+/** One standard atmosphere in bar. SpaceEngine states pressure in atm, SSG stores bar; the reader
+ *  and the writer share this so a round trip cannot drift. */
+export const BAR_PER_ATM = 1.01325;
 
 export interface ScImportOptions { minBodyMassKg?: number; }
 export interface ScImportResult {
@@ -122,7 +126,12 @@ function atmosphereFrom(b: ScBlock): CelestialBody['atmosphere'] | undefined {
   }
   if (!(pressureAtm != null && pressureAtm > 0) && !Object.keys(composition).length) return undefined;
   let main = ''; let best = 0; for (const [sp, f] of Object.entries(composition)) if (f > best) { best = f; main = sp; }
-  return { name: '', composition, ...(pressureAtm != null ? { pressure_bar: +pressureAtm.toFixed(4) } : {}), ...(main ? { main } : {}) };
+  // ATMOSPHERES ARE IN DIFFERENT UNITS AND THIS USED TO PRETEND OTHERWISE. SpaceEngine writes
+  // `Pressure 1.0 // atm` — its own files say so in a comment — and SSG stores bar. They are not the
+  // same: one standard atmosphere is 1.01325 bar, so every imported pressure was 1.3% light, and an
+  // exporter that wrote bar straight back into an atm field would have compounded it. One constant,
+  // used by the reader and the writer, so the two can never drift apart.
+  return { name: '', composition, ...(pressureAtm != null ? { pressure_bar: +(pressureAtm * BAR_PER_ATM).toFixed(4) } : {}), ...(main ? { main } : {}) };
 }
 
 // Below the engine's own promote ratio a moon orbits its planet, not a shared barycentre. Read

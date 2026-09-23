@@ -1,8 +1,8 @@
 <script lang="ts">
   import { detectFormat, FORMATS, type FormatId } from '$lib/convert/formats';
   import { ADAPTERS, type SourceAdapter, type ConvertResult, type BodyPreview } from '$lib/convert/adapters';
-  import { OUTPUTS, toSseJson, fileNameFor, download } from '$lib/convert/output';
-  import { LINKS } from '$lib/links';
+  import { OUTPUTS, writeFor, download } from '$lib/convert/output';
+  import { LINKS, HOW_TO } from '$lib/links';
 
   type Phase = 'idle' | 'loaded' | 'working' | 'done' | 'error';
 
@@ -89,10 +89,21 @@
     }
   }
 
-  function save() {
+  // Universe Sandbox has no ring object, so a ring there is a cloud of bodies. Off by default: a few
+  // hundred extra objects is a real cost and most people converting a system want the system.
+  let ringParticles = $state(false);
+  let lastNotes = $state<string[]>([]);
+
+  function save(id: FormatId) {
     if (!result) return;
-    download(toSseJson(result.system), fileNameFor(result.system, '.json'));
+    const file = writeFor(id, result.system, { particlesPerRing: ringParticles ? 120 : 0 });
+    lastNotes = file.notes;
+    download((file.text ?? file.bytes)!, file.fileName, file.mime);
   }
+
+  const hasRings = $derived(
+    !!result?.system.nodes?.some((n) => ['ring', 'belt'].includes((n as { roleHint?: string }).roleHint ?? ''))
+  );
 
   function onDrop(e: DragEvent) {
     e.preventDefault(); dragging = false;
@@ -146,6 +157,21 @@
     </label>
     <p class="hint">.ubox &middot; .sc &middot; .pak &middot; .json &middot; .sse.zip</p>
   </section>
+
+  <!-- WHERE PEOPLE ACTUALLY GET STUCK is a step earlier than this page: finding the file at all.
+       Folded, beside the drop zone, so it is there for anyone hunting and invisible to anyone who
+       already has their save in hand. -->
+  <div class="howtos">
+    {#each HOW_TO as h (h.format)}
+      <details class="howto">
+        <summary>{h.title}</summary>
+        <ol>{#each h.steps as s, i (i)}<li>{s}</li>{/each}</ol>
+        {#if h.video}
+          <p><a href={h.video} target="_blank" rel="noopener noreferrer">Watch someone do it</a></p>
+        {/if}
+      </details>
+    {/each}
+  </div>
 {/if}
 
 {#if problem}
@@ -199,15 +225,29 @@
       {result.counts.moons} moon{result.counts.moons === 1 ? '' : 's'}{#if result.counts.rings}, {result.counts.rings} ring{result.counts.rings === 1 ? '' : 's'}{/if}{#if result.counts.other}, {result.counts.other} other{/if}
     </p>
 
+    <p class="label">Save it as</p>
     <div class="outputs">
       {#each OUTPUTS as o (o.id)}
-        {#if o.available}
-          <button class="cta" onclick={save}>Download {o.label} {o.extension}</button>
-        {:else}
-          <span class="soon" title={o.note}>{o.label} {o.extension} — soon</span>
-        {/if}
+        <button class="cta" onclick={() => save(o.id)} title={o.note}>{o.label} {o.extension}</button>
       {/each}
     </div>
+
+    {#if hasRings}
+      <label class="opt">
+        <input type="checkbox" bind:checked={ringParticles} />
+        <span>
+          Scatter rings and belts into particles for Universe Sandbox
+          <em>— it has no ring object, so this adds a few hundred small bodies.</em>
+        </span>
+      </label>
+    {/if}
+
+    {#if lastNotes.length}
+      <div class="notes">
+        <p class="label">That format could not take everything</p>
+        <ul>{#each lastNotes as n, i (i)}<li>{n}</li>{/each}</ul>
+      </div>
+    {/if}
 
     {#if result.assumptions.length}
       <details class="sub-fold">
@@ -308,8 +348,24 @@
   .plainbtn { background: none; border: 0; color: var(--ink-faint); font: inherit; font-size: 0.9rem; cursor: pointer; text-decoration: underline; }
   .plainbtn:hover { color: var(--ink-dim); }
 
-  .outputs { margin: 20px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
-  .soon { color: var(--ink-faint); font-size: 0.9rem; border: 1px dashed var(--edge); border-radius: var(--radius); padding: 7px 13px; cursor: help; }
+  .outputs { margin: 8px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+  .outputs .cta { cursor: pointer; }
+
+  .opt { margin: 16px 0 0; display: flex; gap: 9px; align-items: flex-start; font-size: 0.92rem; color: var(--ink-dim); cursor: pointer; }
+  .opt input { margin-top: 3px; accent-color: var(--accent); }
+  .opt em { color: var(--ink-faint); font-style: normal; }
+
+  .notes { margin: 18px 0 0; }
+  .notes ul { margin: 6px 0 0; padding-left: 20px; color: var(--ink-dim); font-size: 0.92rem; }
+  .notes li { margin-bottom: 5px; }
+
+  .howtos { margin: 18px 0 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .howto { background: var(--panel); border: 1px solid var(--edge); border-radius: var(--radius); padding: 12px 14px; }
+  .howto summary { cursor: pointer; color: var(--ink-dim); font-size: 0.94rem; }
+  .howto summary:hover { color: var(--ink); }
+  .howto ol { margin: 10px 0 0; padding-left: 20px; color: var(--ink-dim); font-size: 0.9rem; }
+  .howto li { margin-bottom: 6px; }
+  .howto p { margin: 10px 0 0; font-size: 0.9rem; }
 
   .sub-fold { margin: 16px 0 0; font-size: 0.92rem; }
   .sub-fold summary { cursor: pointer; color: var(--ink-dim); }

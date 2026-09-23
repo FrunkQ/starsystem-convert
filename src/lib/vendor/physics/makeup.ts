@@ -1,0 +1,258 @@
+// VENDORED from Star System Explorer, src/lib/physics/makeup.ts — copied on 2026-09-23.
+// DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the
+// two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import
+// paths and that script's declared substitutions are the only intended differences.
+// Planetary interior makeup (Phase 04 / proposal §2a). A body's bulk composition is the
+// first-class control; density and (with mass) radius are DERIVED from it — Option A. Bodies
+// without an explicit makeup get one inferred from their density, so classification and display
+// always have composition to work with.
+import type { CelestialBody, Makeup } from '../types';
+import { EARTH_MASS_KG, EARTH_RADIUS_KM } from '../constants';
+
+// Representative grain densities (g/cc) for each component.
+const GRAIN_GCC: Required<Makeup> = { metal: 7.9, rock: 3.3, carbon: 2.3, ice: 0.95, gas: 0.12 };
+const KEYS = ['metal', 'rock', 'carbon', 'ice', 'gas'] as const;
+
+export function normalizeMakeup(m: Makeup | undefined): Required<Makeup> {
+  const out: Required<Makeup> = { metal: 0, rock: 0, carbon: 0, ice: 0, gas: 0 };
+  let sum = 0;
+  for (const k of KEYS) { const v = Math.max(0, m?.[k] ?? 0); out[k] = v; sum += v; }
+  if (sum <= 0) return { metal: 0, rock: 1, carbon: 0, ice: 0, gas: 0 };
+  for (const k of KEYS) out[k] /= sum;
+  return out;
+}
+
+// Volume-additive bulk density from mass fractions: 1/ρ = Σ fᵢ/ρᵢ. This is the UNCOMPRESSED
+// (grain) density — what the interior would be without self-gravity squeezing it.
+export function bulkDensityFromMakeup(m: Makeup): number {
+  const n = normalizeMakeup(m);
+  let inv = 0;
+  for (const k of KEYS) inv += n[k] / GRAIN_GCC[k];
+  return inv > 0 ? 1 / inv : 5.513;
+}
+
+// Gravitational COMPRESSION factor: a larger interior is squeezed denser by its own gravity, so
+// bulk density climbs with mass. Calibrated so an Earth-mass rocky world (uncompressed ~3.7 g/cc)
+// reaches its real ~5.5 — and small bodies (Moon, Mercury, Mars) are barely compressed, while
+// super-Earths are markedly denser. Gas-dominated bodies follow a different (degeneracy) relation,
+// so they are left uncompressed here.
+export function compressionFactor(mass_Me: number, m: Makeup): number {
+  const n = normalizeMakeup(m);
+  if (n.gas > 0.5) return 1;
+  return 1 + 0.67 * (1 - Math.exp(-Math.max(0, mass_Me) / 0.8));
+}
+
+// Compressed bulk density (g/cc) — the realistic value, ≈ measured density. Earth ≈ 5.5.
+export function compressedDensityFromMakeup(mass_Me: number, m: Makeup): number {
+  return bulkDensityFromMakeup(m) * compressionFactor(mass_Me, m);
+}
+
+// MACROPOROSITY ceiling: voids survive self-gravity only in small bodies. Rubble piles and comets
+// (km-scale, ≲1e-11 M⊕) hold up to ~65% void space (67P ≈ 70%, Bennu ≈ 50%); by Ceres/Hygiea mass
+// (~1e-4 M⊕) hydrostatic equilibrium has crushed it all out. Log-linear ramp between the two.
+// Phobos (1.8e-9 M⊕, measured ~30%) lands under a ~44% ceiling — consistent.
+const POROSITY_MAX = 0.65, POROSITY_X0 = -11, POROSITY_X1 = -4; // log10(M⊕) full → none
+export function maxPorosity(mass_Me: number): number {
+  const x = Math.log10(Math.max(1e-15, mass_Me));
+  const t = Math.max(0, Math.min(1, (POROSITY_X1 - x) / (POROSITY_X1 - POROSITY_X0)));
+  return POROSITY_MAX * t;
+}
+
+/**
+ * The same ramp read the other way: the HEAVIEST body that can still hold a given void fraction.
+ *
+ * The generator needs it because a fingerprint's mass band and its porosity band are written
+ * independently - `asteroid/rubble-pile` says 0 to 1e-4 M(earth) and 20% or more void - and drawing
+ * a mass from the full width of the first would produce a body whose stated porosity the physics
+ * then refuses. Inverting the ceiling here rather than guessing a lower band keeps ONE definition of
+ * where voids survive; `maxPorosity(maxMassForPorosity(p))` is p, and a spec pins that.
+ */
+export function maxMassForPorosity(porosity: number): number {
+  const p = Math.max(0, Math.min(POROSITY_MAX, porosity));
+  if (p <= 0) return Infinity;
+  return Math.pow(10, POROSITY_X1 - (p / POROSITY_MAX) * (POROSITY_X1 - POROSITY_X0));
+}
+
+// The porosity a body's MEASURED size implies for its makeup: 1 − ρ_geom/ρ_solid, where ρ_solid is
+// the fully-compacted (compressed) density of its mix. Zero for gas-dominated bodies (their "trim"
+// is thermal inflation, not voids) and never negative (an overdense body just reads as compacted).
+// Derived, not stored — massKg + radiusKm already carry it. Used by the classifier (rubble piles).
+export function derivedPorosity(body: CelestialBody): number {
+  const m = makeupFractions(body);
+  if (m.gas > 0.5) return 0;
+  const massKg = body.massKg || 0;
+  const radiusM = (body.radiusKm || 0) * 1000;
+  if (massKg <= 0 || radiusM <= 0) return 0;
+  const geom = (massKg / ((4 / 3) * Math.PI * radiusM ** 3)) / 1000;
+  const solid = compressedDensityFromMakeup(massKg / EARTH_MASS_KG, m);
+  return Math.max(0, Math.min(0.95, 1 - geom / solid));
+}
+
+const JUPITER_ME = 317.8;
+const JUPITER_RE = 11.2;
+
+// THERMAL INFLATION: insolation puffs a gas giant's envelope. A cold/temperate giant sits near 1 R_J;
+// an irradiated hot Jupiter inflates (bigger radius, lower density). Negligible below ~600 K, climbing
+// to ~+70% for the most irradiated (~2200 K+). Terrestrials don't do this (rock/metal don't thermally
+// expand), so it's applied ONLY to the gas-giant radius model. Returns a radius MULTIPLIER (≥1).
+const INFLATE_T0 = 600, INFLATE_T1 = 2200, INFLATE_MAX = 0.7;
+export function gasThermalInflationFactor(teqK: number): number {
+  const t = Math.max(0, Math.min(1, (teqK - INFLATE_T0) / (INFLATE_T1 - INFLATE_T0)));
+  return 1 + INFLATE_MAX * t;
+}
+
+// Gas giants don't follow the rocky compression — degeneracy pressure makes their radius roughly
+// CONSTANT (~1 Rjup) across a wide mass range: sub-Jovians are smaller, super-Jovians/brown dwarfs
+// slowly shrink as gravity wins. The `inflation` multiplier then puffs a hot giant up. A measured giant
+// usually has its radius set directly; this is for derive-from-makeup. (Chen–Kipping-ish.)
+function gasGiantRadiusRe(mass_Me: number, inflation = 1): number {
+  const Mj = Math.max(0.001, mass_Me / JUPITER_ME);
+  const base = Mj < 0.4
+    ? JUPITER_RE * Math.pow(Mj / 0.4, 0.45)  // sub-Saturn: grows with mass
+    : JUPITER_RE * Math.pow(Mj, -0.04);      // Jovian → brown dwarf: gently shrinks
+  return base * Math.max(0.5, inflation);
+}
+
+// Radius (Earth radii) implied by a mass (Earth masses) + makeup. Rocky/icy bodies use compression
+// (Earth: rock/metal mix → ρ ≈ 5.5 → radius ≈ 1); gas-dominated bodies use the giant mass–radius
+// relation (Jupiter mass → ~11.2 R⊕) with an optional thermal-inflation multiplier (rocky bodies
+// ignore it — no thermal expansion).
+export function radiusReFromMassMakeup(mass_Me: number, m: Makeup, inflation = 1): number {
+  if (normalizeMakeup(m).gas > 0.5) return gasGiantRadiusRe(mass_Me, inflation);
+  const rho = compressedDensityFromMakeup(mass_Me, m);
+  return Math.cbrt((Math.max(0, mass_Me) / rho) * 5.513);
+}
+
+// Inverse of radiusReFromMassMakeup: the mass (Earth masses) whose makeup-derived radius matches a
+// target radius. radiusReFromMassMakeup is monotonic in mass for rocky/icy/carbon bodies, so a
+// geometric bisection over log-mass converges cleanly. (Gas-dominated bodies are degeneracy-flat in
+// radius — the caller should keep those mass-driven; this still returns a best-effort value.)
+export function massMeFromRadiusMakeup(radius_Re: number, m: Makeup, inflation = 1): number {
+  const target = Math.max(1e-6, radius_Re);
+  let lo = 1e-16, hi = 1e6; // sub-km comet → well past brown-dwarf
+  for (let i = 0; i < 60; i++) {
+    const mid = Math.sqrt(lo * hi);
+    if (radiusReFromMassMakeup(mid, m, inflation) < target) lo = mid; else hi = mid;
+  }
+  return Math.sqrt(lo * hi);
+}
+
+// Reverse: a representative makeup for an UNCOMPRESSED grain density (g/cc), by inverting the
+// volume-additive blend between the two bracketing grain densities. Physically grounded — a density
+// of 5.4 lands at ~⅔ metal (Mercury), not a coarse "rocky" bucket.
+export function inferMakeupFromDensity(density_gcc: number): Makeup {
+  const d = Math.max(0.12, density_gcc);
+  const blend = (heavy: keyof Makeup, hDen: number, light: keyof Makeup, lDen: number): Makeup => {
+    // 1/d = f/hDen + (1−f)/lDen  →  solve the heavy fraction f
+    const f = Math.max(0, Math.min(1, ((1 / lDen) - (1 / d)) / ((1 / lDen) - (1 / hDen))));
+    return { [heavy]: f, [light]: 1 - f } as Makeup;
+  };
+  if (d >= GRAIN_GCC.metal) return { metal: 1 };
+  if (d >= GRAIN_GCC.rock) return blend('metal', GRAIN_GCC.metal, 'rock', GRAIN_GCC.rock);  // metal↔rock
+  if (d >= GRAIN_GCC.ice) return blend('rock', GRAIN_GCC.rock, 'ice', GRAIN_GCC.ice);        // rock↔ice
+  return blend('ice', GRAIN_GCC.ice, 'gas', GRAIN_GCC.gas);                                  // ice↔gas
+}
+
+// The normalised makeup fractions for a body: explicit if present, else inferred from its bulk
+// density. The measured density is gravity-COMPRESSED, so we decompress by mass first — a small,
+// dense body is iron (Mercury), not compressed rock. Used by the classifier + the body panel.
+// DATA-R8: THIS is the composition, not `body.makeup`. The stored field is empty on 107 of the 226
+// non-star bundled bodies — Jupiter among them — and it does not matter, because every consumer
+// calls this. If you are about to conclude that a body "has no composition" or that some test
+// keyed on gas fraction is dead, measure through HERE and not through the field.
+export function makeupFractions(body: CelestialBody): Required<Makeup> {
+  if (body.makeup) return normalizeMakeup(body.makeup);
+  const massKg = body.massKg || 0;
+  const radiusM = (body.radiusKm || 0) * 1000;
+  const volM3 = radiusM > 0 ? (4 / 3) * Math.PI * radiusM ** 3 : 0;
+  const density_gcc = volM3 > 0 ? (massKg / volM3) / 1000 : 5.513;
+  const massMe = massKg / EARTH_MASS_KG;
+  // A massive, low-density body is a gas/ice giant — its bulk density (≈1.3 for Jupiter) would
+  // otherwise read as "icy" and miss the gas envelope.
+  if (massMe > 8 && density_gcc < 2.5) return normalizeMakeup({ gas: 0.8, ice: 0.2 });
+  // Recover the uncompressed grain density (assume a rocky body for the compression factor).
+  const uncompressed = density_gcc / compressionFactor(massMe, { rock: 1 });
+  return normalizeMakeup(inferMakeupFromDensity(uncompressed));
+}
+
+// A massive, low-density body is a FLUID GIANT — a gas OR ice giant. Same physical test computeMakeup
+// uses to infer a giant's makeup (mass > 8 M⊕, bulk density < 2.5 g/cc). The point of a separate helper:
+// an ICE giant is ice-dominated with a LOW gas fraction, so keying "is a giant?" off `makeup.gas > 0.5`
+// alone mistakes it for a solid iceball — this catches both.
+export function isFluidGiant(body: CelestialBody): boolean {
+  const massKg = body.massKg || 0;
+  const radiusM = (body.radiusKm || 0) * 1000;
+  if (massKg <= 0 || radiusM <= 0) return false;
+  const volM3 = (4 / 3) * Math.PI * radiusM ** 3;
+  const density_gcc = (massKg / volM3) / 1000;
+  return massKg / EARTH_MASS_KG > 8 && density_gcc < 2.5;
+}
+
+// Should this body be DRAWN as a giant (banded cloud-world, never a cratered solid surface)? True for a
+// gas-dominated body OR any fluid giant (so ice giants qualify). The single source of truth shared by the
+// apparent-colour derivation and the disc renderer so they can't disagree.
+export function rendersAsGiant(body: CelestialBody): boolean {
+  return makeupFractions(body).gas > 0.5 || isFluidGiant(body);
+}
+
+// THE GAS FRACTION ABOVE WHICH THERE IS NOWHERE TO STAND. One number, named once, because it is the
+// boundary of a PHYSICAL question and not a tuning knob — see `hasSolidSurface` below.
+export const SOLID_SURFACE_MAX_GAS = 0.5;
+
+/**
+ * IS THERE GROUND HERE? (inbox B36 — the has-ground question, and ONLY that one.)
+ *
+ * Lives beside `rendersAsGiant` on purpose: engine-map M1 records that those two overlap and could
+ * disagree about an ice giant, and a reader comparing them needs both in front of them. It used to
+ * live in `physics/radiation.ts`, which meant the cloud model and the body editor had to import the
+ * RADIATION module to ask a question about composition.
+ *
+ * READ engine-map M2 BEFORE ADDING A CALLER. `makeup.gas` against 0.5 answers at least four different
+ * questions in this codebase — *has ground*, *is a giant*, *draws as a giant*, *has a surface to rust*
+ * — and they share a boundary rather than being one question in four spellings. This is the first one.
+ * Do not route the others here on the strength of the shared constant.
+ *
+ * A STAR is excluded outright: a photosphere is not somewhere you stand, and the radiation model does
+ * not compute a star's own dose at all, so without this Sol would carry a "background" hazard tag
+ * derived from an undefined figure.
+ */
+export function hasSolidSurface(n: any): boolean {
+  if (n?.roleHint === 'star') return false;
+  return makeupHasSolidSurface(makeupFractions(n));
+}
+
+/**
+ * The same question asked of a COMPOSITION rather than a body — for callers that hold a `Makeup` and
+ * have no node to infer from (the body editor applying a preset). Kept as a separate entry point
+ * rather than a second threshold: `hasSolidSurface` is defined in terms of this one, so there is
+ * still exactly one comparison in the codebase.
+ */
+export function makeupHasSolidSurface(m: Makeup): boolean {
+  return (m.gas ?? 0) <= SOLID_SURFACE_MAX_GAS;
+}
+
+// PHYSICS CORRECTS THE MAKEUP (composition round 2, seam fix). A body whose mass + density land in the
+// fluid-giant regime CANNOT be gas-free: no rock/ice mix is that low-density at that mass — self-gravity
+// would crush it far denser. So if the stored makeup is gas-poor there, it's an inconsistent state; the
+// physics re-infers a volatile envelope from the density (lower density → more gas, up to a Jupiter-like
+// mix; near the 2.5 g/cc ceiling → an ice-giant-ish mix). Returns the corrected makeup, or null if the
+// makeup is already consistent (gas-dominated, or the body isn't a fluid giant, or has no explicit makeup).
+export function reconcileGiantMakeup(body: CelestialBody): Required<Makeup> | null {
+  if (!body.makeup) return null;                   // no explicit makeup → makeupFractions already infers
+  const m = normalizeMakeup(body.makeup);
+  if (m.gas > 0.5) return null;                    // already gas-dominated → consistent
+  // A PINNED DENSITY IS THE GM SAYING THE TWO DELIBERATELY DISAGREE, so there is nothing to
+  // reconcile (G37). This function exists to correct a makeup that CANNOT be right — an ice world at
+  // twelve Earth masses and half a gram per cc — by reading the density back into the composition.
+  // That inference is exactly wrong once the density is authored: a hollowed-out rocky world is
+  // heavy and light on purpose, and turning its rock into gas would explain away the contradiction
+  // the GM asked for, silently, on the next pass. Worse, the correction is WRITTEN to `body.makeup`,
+  // so it would reach the save and the original composition would be gone for good.
+  if (typeof body.overrides?.densityGcm3 === 'number') return null;
+  if (!isFluidGiant(body)) return null;            // not in giant territory → the makeup stands
+  const massKg = body.massKg || 0;
+  const radiusM = (body.radiusKm || 0) * 1000;
+  const density = radiusM > 0 ? (massKg / ((4 / 3) * Math.PI * radiusM ** 3)) / 1000 : 1;
+  const gasFrac = Math.max(0.6, Math.min(0.92, 1.05 - density / 3));
+  return normalizeMakeup({ gas: gasFrac, ice: 1 - gasFrac });
+}

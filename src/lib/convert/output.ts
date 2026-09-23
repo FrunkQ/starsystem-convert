@@ -1,12 +1,11 @@
-// WRITING THE RESULT OUT.
+// WRITING THE RESULT OUT — all three targets.
 //
-// Three targets are planned and one exists. Star System Explorer's own `.json` is the one that works,
-// because the pivot IS an SSE system — writing it is stamping it and handing it over. Universe
-// Sandbox and SpaceEngine need real exporters (state vectors and a zip container for the first, a
-// back-to-front `.sc` writer for the second); they are declared here as unavailable rather than
-// hidden, so the page can offer them greyed with a reason instead of pretending the tool is smaller
-// than it is going to be.
+// Star System Explorer's own `.json` is the simplest, because the pivot IS an SSE system: writing it
+// is stamping it and handing it over. The other two are real exporters, vendored from the engine
+// beside the readers they invert.
 import type { System } from '$lib/vendor/types';
+import { exportSc } from '$lib/vendor/export/spaceengine/write';
+import { exportUbox } from '$lib/vendor/export/ubox/write';
 import type { FormatId } from './formats';
 
 /**
@@ -23,22 +22,45 @@ export interface OutputTarget {
   id: FormatId;
   label: string;
   extension: string;
-  available: boolean;
-  /** Shown when `available` is false — why not, in words a person can act on. */
-  note?: string;
+  mime: string;
+  /** What a person should know before they open the result in that program. */
+  note: string;
 }
 
 export const OUTPUTS: OutputTarget[] = [
-  { id: 'sse', label: 'Star System Explorer', extension: '.json', available: true },
   {
-    id: 'ubox', label: 'Universe Sandbox', extension: '.ubox', available: false,
-    note: 'Being built. Universe Sandbox has no orbits — every body is a position and a velocity — so this one has to turn the whole system back into state vectors.'
+    id: 'sse', label: 'Star System Explorer', extension: '.json', mime: 'application/json',
+    note: 'Open it from the file menu, or drop it onto the map. The Explorer works out temperatures, climate and classification for itself once it arrives.'
   },
   {
-    id: 'spaceengine', label: 'SpaceEngine', extension: '.sc', available: false,
-    note: 'Being built. Close to a straight reversal of the import, with the catch that SpaceEngine matches parents by NAME, so every body has to end up uniquely named first.'
+    id: 'spaceengine', label: 'SpaceEngine', extension: '.sc', mime: 'text/plain',
+    note: 'Put it in SpaceEngine’s addon catalogue folder, then restart SpaceEngine so it reads the catalogue again.'
+  },
+  {
+    id: 'ubox', label: 'Universe Sandbox', extension: '.ubox', mime: 'application/zip',
+    note: 'Open it from Universe Sandbox’s Home menu. The snapshot is one instant — Universe Sandbox has no orbits, only positions and velocities — so the simulation takes it from there.'
   }
 ];
+
+/** What a conversion could not carry into a given format, so the page can say so before the download. */
+export interface WrittenFile { text?: string; bytes?: Uint8Array; fileName: string; mime: string; notes: string[] }
+
+/**
+ * Write a system in the chosen format. `particlesPerRing` only means anything for Universe Sandbox,
+ * which has no ring object: a ring there is a cloud of individual bodies, so it is a choice between
+ * no rings and a few hundred more objects.
+ */
+export function writeFor(id: FormatId, system: System, opts: { particlesPerRing?: number } = {}): WrittenFile {
+  const target = OUTPUTS.find((o) => o.id === id)!;
+  const fileName = fileNameFor(system, target.extension);
+  if (id === 'sse') return { text: toSseJson(system), fileName, mime: target.mime, notes: [] };
+  if (id === 'spaceengine') {
+    const out = exportSc(system);
+    return { text: out.text, fileName, mime: target.mime, notes: out.notes };
+  }
+  const out = exportUbox(system, { particlesPerRing: opts.particlesPerRing ?? 0 });
+  return { bytes: out.bytes, fileName, mime: target.mime, notes: out.notes };
+}
 
 /**
  * The engine's `plainSaveJson`: the stamp goes on FIRST, so a reader — or a person with a text
@@ -58,8 +80,8 @@ export function fileNameFor(system: System, extension: string): string {
 }
 
 /** Hand the browser a file. Revoked on the next tick — a leaked object URL pins the whole blob. */
-export function download(text: string, fileName: string, mime = 'application/json') {
-  const url = URL.createObjectURL(new Blob([text], { type: mime }));
+export function download(body: string | Uint8Array, fileName: string, mime = 'application/json') {
+  const url = URL.createObjectURL(new Blob([body as BlobPart], { type: mime }));
   const a = document.createElement('a');
   a.href = url;
   a.download = fileName;

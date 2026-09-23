@@ -1,7 +1,7 @@
 // VENDORED from Star System Explorer, src/lib/import/ubox/hierarchy.ts — copied on 2026-09-23.
 // DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the
 // two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import
-// paths and the declared substitutions in that script are the only intended differences.
+// paths and that script's declared substitutions are the only intended differences.
 // Universe Sandbox (.ubox) import — hierarchy inference (browser-safe). Design §6.
 //
 // US stores no parent references (Parent = -1 everywhere), so the whole hierarchy is inferred from
@@ -32,8 +32,8 @@
 // made a moon's sphere 30x too small and threw its own moon to the star as unbound. All measured, on
 // two users' files (the B114 row).
 import { G, AU_KM } from '../../constants';
-import { hillRadiusAU } from '../../physics';
-import { pairThresholds } from '../../physics';
+import { hillRadiusAU } from '../../physicsLeaf';
+import { pairThresholds } from '../../physicsLeaf';
 import { stateVectorsToElements, type V3 } from './kepler';
 import type { Kepler } from '../../types';
 

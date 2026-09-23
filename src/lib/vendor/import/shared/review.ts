@@ -1,7 +1,7 @@
 // VENDORED from Star System Explorer, src/lib/import/shared/review.ts — copied on 2026-09-23.
 // DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the
 // two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import
-// paths and the declared substitutions in that script are the only intended differences.
+// paths and that script's declared substitutions are the only intended differences.
 // Shared Import Review (the audit): compares SSG's DERIVED results against a reference snapshot of the
 // source values an importer deliberately did NOT import, bucketing each as aligned / explained /
 // needs-a-look. Used by the Universe Sandbox and SpaceEngine importers.
