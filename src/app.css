@@ -1,0 +1,116 @@
+/* Star System Converter.
+ *
+ * THE SAME SKIN AS THE CREATOR HUB, deliberately: this tool, `explorers.starsystemx.com` and the
+ * engine are one family, and somebody arriving here from a Discord link should not feel they have
+ * left. The tokens below are the hub's `src/app.css` verbatim — copied rather than imported, because
+ * the two sites are separate repos with separate release cadences, and a shared stylesheet across
+ * that seam is a thing that breaks on somebody else's deploy.
+ *
+ * Same performance rule too: no webfonts, no framework CSS, no icon font. One stylesheet, system
+ * fonts, and a page that paints as soon as the HTML arrives.
+ */
+
+:root {
+  color-scheme: dark;
+  --bg: #0a0d14;
+  --panel: #131824;
+  --panel-2: #1a2030;
+  --edge: #26304a;
+  --ink: #e8ecf5;
+  --ink-dim: #9aa6bf;
+  --ink-faint: #6b7794;
+  --accent: #6fb3ff;
+  --accent-ink: #04101f;
+  --warn: #ffc266;
+  --bad: #ff8080;
+  --radius: 10px;
+  /* Prose, not a gallery: this page is text and one drop target, so it caps far narrower than the
+     hub's 1800px. A line of explanation nobody can track across is worse than a narrow page. */
+  --max: 980px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* iOS INFLATES TEXT IN LANDSCAPE unless told not to, which throws a carefully sized page out by
+     a third the moment somebody turns their phone. */
+  -webkit-text-size-adjust: 100%;
+  /* A pasted file name or a hash is one unbreakable word, and one of those is all it takes to push
+     a 375px screen sideways. Breaking is always better than a page that scrolls both ways. */
+  overflow-wrap: break-word;
+}
+
+img, svg, video { max-width: 100%; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.skip { position: absolute; left: -9999px; }
+.skip:focus {
+  left: 8px; top: 8px; z-index: 10; padding: 8px 12px;
+  background: var(--accent); color: var(--accent-ink); border-radius: var(--radius);
+}
+
+/* ---- chrome ------------------------------------------------------------------------------- */
+header { border-bottom: 1px solid var(--edge); background: var(--panel); }
+header nav {
+  max-width: var(--max); margin: 0 auto; padding: 12px 20px;
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+}
+.wordmark { color: var(--ink); font-weight: 650; letter-spacing: -0.01em; display: inline-flex; align-items: center; gap: 9px; }
+.wordmark:hover { color: var(--accent); text-decoration: none; }
+.wordmark span { color: var(--ink-faint); font-weight: 500; }
+.spacer { flex: 1; }
+header nav a.plain { color: var(--ink-dim); font-size: 0.95rem; }
+
+main { max-width: var(--max); margin: 0 auto; padding: 28px 20px 56px; }
+h1 { font-size: 1.75rem; font-weight: 650; letter-spacing: -0.01em; margin: 0 0 10px; }
+h2 { font-size: 1.1rem; font-weight: 650; margin: 0 0 8px; }
+.lede { color: var(--ink-dim); margin: 0 0 24px; max-width: 70ch; }
+.prose { max-width: 74ch; }
+.prose p { color: var(--ink-dim); }
+
+/* ---- panels and notices ------------------------------------------------------------------- */
+.panel {
+  background: var(--panel); border: 1px solid var(--edge);
+  border-radius: var(--radius); padding: 16px 18px;
+}
+.notice {
+  border-left: 3px solid var(--warn);
+  background: var(--panel); border-radius: var(--radius);
+  padding: 14px 16px; margin: 0 0 24px;
+}
+.notice h2 { font-size: 0.98rem; margin: 0 0 5px; color: var(--warn); }
+.notice p { margin: 0; color: var(--ink-dim); font-size: 0.94rem; }
+.notice p + p { margin-top: 7px; }
+
+.cta {
+  /* INLINE-BLOCK, not inline: an inline element's vertical padding paints outside the line box and
+     takes up no layout space, so whatever follows sits against it however much padding it has. */
+  display: inline-block;
+  background: var(--accent); color: var(--accent-ink);
+  padding: 8px 14px; border-radius: var(--radius); font-weight: 600;
+}
+.cta:hover { text-decoration: none; filter: brightness(1.08); }
+
+/* ---- footer ------------------------------------------------------------------------------- */
+footer { border-top: 1px solid var(--edge); background: var(--panel); padding: 22px 20px; }
+footer .what { max-width: var(--max); margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
+footer .what h2 { margin: 0 0 4px; font-size: 1.05rem; flex-basis: 100%; }
+footer .what p { margin: 0; color: var(--ink-dim); max-width: 62ch; flex-basis: 100%; }
+@media (min-width: 900px) {
+  footer .what p { flex: 1; flex-basis: auto; }
+  footer .what .cta { margin-left: auto; }
+}
+footer .foot-bottom {
+  max-width: var(--max); margin: 18px auto 0;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 28px;
+  border-top: 1px solid var(--edge); padding-top: 14px;
+}
+footer .fan { margin: 0; color: var(--ink-faint); font-size: 0.8rem; line-height: 1.5; flex: 1 1 30ch; }
+footer .small { margin: 0; display: flex; gap: 8px 18px; flex-wrap: wrap; color: var(--ink-faint); font-size: 0.9rem; }
+footer .small a { color: var(--ink-faint); }
