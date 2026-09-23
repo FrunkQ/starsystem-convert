@@ -1,0 +1,27 @@
+name = "starsystem-convert"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# DEPLOYED AS A WORKER WITH STATIC ASSETS, not as a Pages project — the same shape as the Creator Hub,
+# and its config file records why the distinction bites: the two targets need genuinely different keys,
+# and a Pages key in a Worker project is SILENTLY IGNORED rather than flagged, so the deploy fails with
+# something unhelpful much further down.
+#
+#   Pages:   pages_build_output_dir = ".svelte-kit/cloudflare"
+#   Workers: main + [assets], which is what is below
+#
+# No wrapper around the adapter's worker here. The hub needs one because it has cron triggers to hang a
+# `scheduled` handler on; this tool has no server work at all, so `main` points straight at the file the
+# adapter emits.
+main = ".svelte-kit/cloudflare/_worker.js"
+
+# THE BINDING MUST BE CALLED `ASSETS`. The worker @sveltejs/adapter-cloudflare generates calls
+# `env.ASSETS.fetch` by name, so this is not a free choice. Note the reversal, which is a trap in both
+# directions: in a PAGES project `ASSETS` is a RESERVED name and wrangler refuses the config outright;
+# in a WORKERS project it is REQUIRED.
+#
+# `directory` is the same folder `main` lives in; the adapter emits a `.assetsignore` that keeps
+# `_worker.js`, `_routes.json`, `_headers` and `_redirects` from being served as static files.
+[assets]
+directory = ".svelte-kit/cloudflare"
+binding = "ASSETS"

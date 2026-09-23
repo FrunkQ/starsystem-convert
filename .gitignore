@@ -1,0 +1,13 @@
+node_modules/
+.svelte-kit/
+build/
+dist/
+.wrangler/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+
+# Sample saves used for local testing are real people's files and stay out of the repo.
+samples/
