@@ -16,5 +16,9 @@ export const LINKS = {
   discordChannelName: '#starsystem-converter-chat',
 
   repo: 'https://github.com/FrunkQ/starsystem-convert',
-  engineRepo: 'https://github.com/FrunkQ/star-system-generator'
+  engineRepo: 'https://github.com/FrunkQ/star-system-generator',
+
+  // The same tip jar the engine's About box points at. Named `frunkq` rather than any project, so it
+  // does not need changing when a fourth thing gets built.
+  kofi: 'https://ko-fi.com/frunkq'
 } as const;

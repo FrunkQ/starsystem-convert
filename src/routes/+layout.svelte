@@ -45,12 +45,22 @@
 </main>
 
 <footer>
-  <!-- The pitch is made at the top of the page. Down here somebody has already read it, so this is a
-       nudge rather than a second advert: one question, one line, one door. -->
-  <div class="what">
-    <h2>Want to see it?</h2>
-    <p>Star System Explorer will open what you just made.</p>
-    <a class="cta" href={LINKS.engine} target="_blank" rel="noopener noreferrer">Take a look</a>
+  <!-- The pitch is made at the top of the page. Down here somebody has already read it, so these are
+       nudges rather than a second advert: two doors, a question each, no argument. They are two
+       different people, which is why they are two blocks rather than one paragraph with two links —
+       somebody who has just converted a file wants to open it, and somebody who has not yet decided
+       the tool is for them is better served by other people's work than by more of our copy. -->
+  <div class="doors">
+    <div class="door">
+      <h2>Want to see it?</h2>
+      <p>Star System Explorer will open what you just made.</p>
+      <a class="cta" href={LINKS.engine} target="_blank" rel="noopener noreferrer">Take a look</a>
+    </div>
+    <div class="door">
+      <h2>Curious what people build?</h2>
+      <p>The Explorers hub is full of systems others have shared.</p>
+      <a class="cta" href={LINKS.hub} target="_blank" rel="noopener noreferrer">Browse the hub</a>
+    </div>
   </div>
 
   <div class="foot-bottom">
@@ -61,7 +71,7 @@
     <p class="small">
       <a href={LINKS.discordInvite} target="_blank" rel="noopener noreferrer">Discord</a>
       <a href={LINKS.repo} target="_blank" rel="noopener noreferrer">Source</a>
-      <a href={LINKS.engineRepo} target="_blank" rel="noopener noreferrer">Engine source</a>
+      <a href={LINKS.kofi} target="_blank" rel="noopener noreferrer">Ko-fi</a>
       <a href={LINKS.engine} target="_blank" rel="noopener noreferrer">Star System Explorer</a>
       <span>v{version}</span>
     </p>

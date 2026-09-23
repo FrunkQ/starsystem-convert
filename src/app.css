@@ -99,13 +99,24 @@ h2 { font-size: 1.1rem; font-weight: 650; margin: 0 0 8px; }
 
 /* ---- footer ------------------------------------------------------------------------------- */
 footer { border-top: 1px solid var(--edge); background: var(--panel); padding: 22px 20px; }
-footer .what { max-width: var(--max); margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; }
-footer .what h2 { margin: 0 0 4px; font-size: 1.05rem; flex-basis: 100%; }
-footer .what p { margin: 0; color: var(--ink-dim); max-width: 62ch; flex-basis: 100%; }
-@media (min-width: 900px) {
-  footer .what p { flex: 1; flex-basis: auto; }
-  footer .what .cta { margin-left: auto; }
+/* TWO DOORS, SIDE BY SIDE where there is room and stacked where there is not. `auto-fit` with a
+   `minmax` floor does it with no media query: below about 2x260px the columns simply collapse to
+   one, in reading order. Each block is a self-contained question-answer-button so neither reads as
+   a caption for the other. */
+footer .doors {
+  max-width: var(--max); margin: 0 auto;
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
+footer .door {
+  background: var(--bg); border: 1px solid var(--edge); border-radius: var(--radius);
+  padding: 16px 18px;
+  /* The buttons line up across both blocks however unequal the sentences above them are. */
+  display: flex; flex-direction: column; align-items: flex-start;
+}
+footer .door h2 { margin: 0 0 4px; font-size: 1.05rem; }
+footer .door p { margin: 0 0 14px; color: var(--ink-dim); font-size: 0.94rem; }
+footer .door .cta { margin-top: auto; }
 footer .foot-bottom {
   max-width: var(--max); margin: 18px auto 0;
   display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 28px;
