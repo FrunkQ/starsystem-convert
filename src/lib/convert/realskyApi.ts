@@ -17,7 +17,9 @@ import * as names from '$lib/vendor/import/realsky/starNames.mjs';
 import * as positions from '$lib/vendor/import/realsky/positions.mjs';
 
 type FetchOpts = { fetchImpl?: typeof fetch; signal?: AbortSignal };
-export interface Region { centre: { raDeg: number; decDeg: number; distLy: number }; radiusLy: number }
+/** A sphere of `radiusLy`, optionally with its distance shell lengthened to `depthLy` along the line
+ *  of sight (the cone stays the sphere's). See `regionBounds` in the engine's query.mjs. */
+export interface Region { centre: { raDeg: number; decDeg: number; distLy: number }; radiusLy: number; depthLy?: number }
 /** Every loader answers with the rows, which source answered them, and a warning when it was not live. */
 export interface Loaded<T> { rows: T[]; source: string; warning: string | null }
 
@@ -38,6 +40,8 @@ export const convertRegion = convert.convertRegion as unknown as (
   opts: { region: Region; mapCentrePx?: { x: number; y: number }; starSizes?: Map<string, unknown> | null; generated?: string; existingSystemIds?: string[] }
 ) => unknown;
 export const cleanStarName = convert.cleanStarName as unknown as (mainId: string) => string;
+/** How far apart, as a fraction of distance, the two catalogues may put a star and still be joined. */
+export const HOST_MATCH_DIST_FRAC = convert.HOST_MATCH_DIST_FRAC as number;
 
 export const toAsciiQuery = names.toAsciiQuery as unknown as (q: string) => string;
 export const toCatalogueTerm = names.toCatalogueTerm as unknown as (q: string) => string;

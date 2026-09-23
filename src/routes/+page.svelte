@@ -2,7 +2,7 @@
   import { detectFormat, FORMATS, type FormatId } from '$lib/convert/formats';
   import { ADAPTERS, countNodes, type SourceAdapter, type ConvertResult, type BodyPreview } from '$lib/convert/adapters';
   import { OUTPUTS, writeFor, download } from '$lib/convert/output';
-  import { resolveStar, systemsAround, nameOf, distanceLyOf, lookupRadiusLy, type SimbadRow } from '$lib/convert/realsky';
+  import { resolveStar, systemsAround, nameOf, distanceLyOf, type SimbadRow } from '$lib/convert/realsky';
   import { LINKS, HOW_TO } from '$lib/links';
 
   type Phase = 'idle' | 'loaded' | 'working' | 'done' | 'error';
@@ -84,13 +84,11 @@
     const found = out.systems[out.chosen];
     if (!found) throw new Error(`${star} was found, but nothing around it could be built into a system.`);
 
-    const others = out.systems.length - 1;
+    // One system in, one system out, so nothing else is fetched and nothing needs explaining. The
+    // only thing worth saying is when the match was by distance rather than by name.
     const assumptions = [
       ...out.warnings,
-      ...(out.matched ? [] : [`No system in the catalogues is named after ${star}, so the one nearest to it, ${found.name}, is shown.`]),
-      ...(others > 0
-        ? [`Only the ${found.name} system is kept. The search looked ${lookupRadiusLy(distanceLyOf(hit)).toFixed(1)} light years around it and found ${others} other star system${others === 1 ? '' : 's'}, which were left out.`]
-        : [])
+      ...(out.matched ? [] : [`No system in the catalogues is named after ${star}, so the one nearest to it, ${found.name}, is shown.`])
     ];
     result = { system: found.system, counts: countNodes(found.system), assumptions, skipped: [] };
     fileName = found.name;
@@ -226,7 +224,15 @@
     <h2>Or look up a real star</h2>
     <p class="sub">
       Any catalogued star &mdash; its companions and every confirmed planet, straight from SIMBAD and the
-      NASA Exoplanet Archive.
+      NASA Exoplanet Archive. One system at a time, which is what the other two programs load.
+    </p>
+    <!-- The pointer for anyone who came wanting more than one - said BEFORE they search, where the
+         decision is made, rather than as an apology afterwards. -->
+    <p class="sub more">
+      After a whole neighbourhood of stars instead?
+      <a href={LINKS.engine} target="_blank" rel="noopener noreferrer">Star System Explorer</a> imports
+      straight from the sky itself &mdash; every star within a distance you choose, as a map &mdash; and can
+      fill in the planets and moons the catalogues have never found.
     </p>
     <form class="skyform" onsubmit={(e) => { e.preventDefault(); lookUp(); }}>
       <input
@@ -469,6 +475,7 @@
 
   .sky { margin: 18px 0 0; }
   .sky h2 { margin: 0 0 4px; }
+  .sky .more { margin-top: 8px; font-size: 0.9rem; color: var(--ink-faint); }
   .skyform { margin: 14px 0 0; display: flex; gap: 10px; flex-wrap: wrap; }
   .skyform input {
     flex: 1 1 220px; min-width: 0;

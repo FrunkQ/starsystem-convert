@@ -55,21 +55,34 @@ export const isSolCentred = (centre) => (centre?.distLy ?? 0) <= 0;
 // of half-angle asin(R/(d-R)) around the centre's direction. The bounds
 // OVER-fetch slightly; positions.inSphere applies the exact cut afterwards.
 // When the sphere contains Sol the cone degrades to the plain shell (§1b).
+//
+// OPTIONAL `depthLy`: how far the DISTANCE shell reaches either side of the centre, when that must be
+// more than the radius. A region is a sphere, so one number used to set both the sky cone and the
+// shell - and a search that needed depth could only get it by also getting width. Looking up ONE
+// star far away is the case: at 2,789 ly Kepler-90's archive distance and its SIMBAD parallax
+// disagree by more than a light year, so a 1 ly sphere found the star and none of its planets, and
+// widening the sphere to cover the disagreement swept a 1.7-degree cone of the Kepler field - 148
+// systems - to keep one. Depth lengthens the shell along the line of sight and leaves the cone alone.
+// Absent, it IS the radius, so every existing region is exactly what it was.
 export function regionBounds(region) {
   const { centre, radiusLy } = region;
   num(radiusLy, 'radiusLy');
   if (radiusLy <= 0) throw new Error(`region: radiusLy must be positive, got ${radiusLy}`);
+  const depthLy = region.depthLy == null ? radiusLy : Math.max(radiusLy, num(region.depthLy, 'depthLy'));
   const dLy = isSolCentred(centre) ? 0 : num(centre.distLy, 'centre.distLy');
-  const shellMinLy = Math.max(0, dLy - radiusLy);
-  const shellMaxLy = dLy + radiusLy;
+  const shellMinLy = Math.max(0, dLy - depthLy);
+  const shellMaxLy = dLy + depthLy;
   const sphereContainsSol = dLy <= radiusLy;
+  // The cone is the SPHERE's, measured at the sphere's near edge - never at the deepened shell's,
+  // which would widen it again and undo the point of depth.
+  const sphereNearLy = Math.max(0, dLy - radiusLy);
   return {
     shellMinPc: shellMinLy / LY_PER_PC,
     shellMaxPc: shellMaxLy / LY_PER_PC,
     // null = whole sky (Sol-centred, or the sphere swallows Sol's origin).
     coneHalfAngleDeg: sphereContainsSol
       ? null
-      : (Math.asin(Math.min(1, radiusLy / shellMinLy)) * 180) / Math.PI,
+      : (Math.asin(Math.min(1, radiusLy / sphereNearLy)) * 180) / Math.PI,
     centreXyzLy: isSolCentred(centre) ? { x: 0, y: 0, z: 0 } : radecToXyzLy(centre.raDeg, centre.decDeg, dLy)
   };
 }

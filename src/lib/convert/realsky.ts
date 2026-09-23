@@ -17,7 +17,7 @@ import {
   loadStarRows, loadArchiveRows, loadStarSizes, loadContainerComponents,
   convertRegion, cleanStarName,
   toAsciiQuery, displayStarName, designationFor, toCatalogueTerm, systemStarName,
-  parallaxMasToLy
+  parallaxMasToLy, HOST_MATCH_DIST_FRAC
 } from './realskyApi';
 import statTemplates from '$lib/vendor/data/statTemplates.json';
 import type { System, CelestialBody } from '$lib/vendor/types';
@@ -156,20 +156,27 @@ export const nameOf = (row: SimbadRow) => displayStarName(row.main_id);
 // --- building the system --------------------------------------------------------------------------
 
 /**
- * HOW FAR AROUND THE STAR TO LOOK. Two things set it, and the larger wins.
- *  - Companions: a bound partner can sit a long way out — Proxima is 0.21 ly from alpha Centauri AB —
- *    so a light year is the floor.
- *  - The distance is uncertain, and further stars are more uncertain. The planet catalogue and the
- *    star catalogue each quote their own distance, and the query keeps a shell of the given radius.
- *    At 2,789 ly Kepler-90's two figures disagree by more than two light years, so a fixed radius
- *    found the star and none of its eight planets. Three per cent of the distance covers the
- *    disagreement without sweeping in a crowd.
+ * WHERE TO LOOK: ONE SYSTEM'S WORTH OF SKY, AND NO MORE.
+ *
+ * Every format this tool writes holds one system, so it fetches one. Two numbers, because the sky and
+ * the distance are not equally uncertain:
+ *
+ *  - ACROSS the sky, a light year around the star. Both catalogues agree on where a star sits to
+ *    arcseconds, and a bound companion can be well out - Proxima is 0.21 ly from alpha Centauri AB.
+ *  - ALONG the line of sight, exactly as far as the planet join will accept: the two catalogues may
+ *    disagree on distance by up to `HOST_MATCH_DIST_FRAC` and still be matched, so the shell reaches
+ *    that far. Further would fetch rows the join must reject; shorter would miss planets it would
+ *    have matched - which is what happened to Kepler-90's eight at 2,789 ly with a plain sphere.
+ *
+ * This replaced a sphere widened to cover the distance disagreement, which at Kepler-90 swept a
+ * 1.7-degree cone of the Kepler field and fetched 148 systems to keep one.
  */
-export const lookupRadiusLy = (distLy: number) => Math.max(1, 0.03 * distLy);
+export const LOOKUP_RADIUS_LY = 1;
+export const lookupDepthLy = (distLy: number) => Math.max(LOOKUP_RADIUS_LY, HOST_MATCH_DIST_FRAC * distLy);
 
 export async function systemsAround(hit: SimbadRow): Promise<Lookup> {
   const distLy = distanceLyOf(hit);
-  const region = { centre: { raDeg: hit.ra, decDeg: hit.dec, distLy }, radiusLy: lookupRadiusLy(distLy) };
+  const region = { centre: { raDeg: hit.ra, decDeg: hit.dec, distLy }, radiusLy: LOOKUP_RADIUS_LY, depthLy: lookupDepthLy(distLy) };
 
   // Sizes are pure enrichment: `loadStarSizes` swallows its own failures, because a missing size is a
   // less good star, never a failed lookup.

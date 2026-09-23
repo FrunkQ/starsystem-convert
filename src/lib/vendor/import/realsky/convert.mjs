@@ -170,7 +170,10 @@ function planetNodeFromRow(row, slug, hostNode, mutualIncMax) {
 // a wide margin, and two unrelated stars agreeing on distance to 10% AND lying within five arcmin
 // of one another does not happen in a volume this sparse. Closest match wins.
 const HOST_MATCH_ARCSEC = 300;
-const HOST_MATCH_DIST_FRAC = 0.10;
+// Exported because a caller searching around ONE star needs its query to reach exactly as far in
+// distance as this join will accept - no further (wasted rows), no shorter (planets it could have
+// matched, never fetched). Read, never copied: a second 0.10 is a number waiting to disagree.
+export const HOST_MATCH_DIST_FRAC = 0.10;
 
 function matchHostToStar(hostRow, stars) {
   const hostLy = hostRow.sy_dist * LY_PER_PC;
