@@ -2,8 +2,7 @@
 //
 // Each is a handful of lines living in a file whose runtime closure is enormous — `hillRadiusAU` sits
 // in `physics/stability.ts` (905 lines, and its imports reach Svelte stores, the construct system and
-// Lagrange), `pairThresholds` in `physics/barycenterReconcile.ts` (578), `UNKNOWN_STAR_CLASS` in a
-// 408-line module whose job is talking to sky catalogues. Copying the function is honest; copying the
+// Lagrange), `pairThresholds` in `physics/barycenterReconcile.ts` (578). Copying the function is honest; copying the
 // module to get at the function would drag half the engine into a web page.
 //
 // VENDORED VERBATIM — the bodies below are the engine's, not a reimplementation. If one of them
@@ -11,7 +10,6 @@
 //   hillRadiusAU        star-system-generator  src/lib/physics/stability.ts
 //   pairThresholds      star-system-generator  src/lib/physics/barycenterReconcile.ts
 //   autoPairName        star-system-generator  src/lib/system/barycentres.ts
-//   UNKNOWN_STAR_CLASS  star-system-generator  src/lib/import/realsky/stars.mjs
 
 // --- Hill radius -------------------------------------------------------------------------------
 /** The Hill radius in AU, at periapsis, judged against the mass the owner ACTUALLY orbits. */
@@ -66,5 +64,3 @@ export function autoPairName(heavyName: string, lightName: string): string {
   return `${a}-${b} Barycentre`;
 }
 
-// --- The one star constant ---------------------------------------------------------------------
-export const UNKNOWN_STAR_CLASS = 'star/unknown';

@@ -16,7 +16,8 @@
 // "M1.5Iab"), and the engine once kept only the first letter — so a K giant imported as a K dwarf.
 // The stated designation is therefore kept exactly as written, and the band is derived from it rather
 // than replacing it.
-import { UNKNOWN_STAR_CLASS } from './physicsLeaf';
+// From the real module now that the real-sky lookup vendors it whole - one definition, not two.
+import { UNKNOWN_STAR_CLASS } from './import/realsky/stars.mjs';
 
 export interface ImportedStarInput {
   /** A designation the source file stated, e.g. "G2V". Wins over everything when present. */

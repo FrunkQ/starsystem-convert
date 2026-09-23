@@ -67,6 +67,14 @@
     <p class="fan">
       Universe Sandbox and SpaceEngine are the work and trademarks of their own makers. This tool is
       not affiliated with either, and only reads and writes their file formats.
+      <!-- The archive asks for this acknowledgement in so many words, and the engine's About box
+           carries it; a real-star lookup here uses both services live. -->
+      Real-star lookups use the
+      <a href="https://exoplanetarchive.ipac.caltech.edu/" target="_blank" rel="noopener noreferrer">NASA Exoplanet Archive</a>,
+      operated by the California Institute of Technology under contract with NASA under the Exoplanet
+      Exploration Program, and the
+      <a href="https://simbad.cds.unistra.fr/simbad/" target="_blank" rel="noopener noreferrer">SIMBAD database</a>,
+      operated at CDS, Strasbourg, France.
     </p>
     <p class="small">
       <a href={LINKS.discordInvite} target="_blank" rel="noopener noreferrer">Discord</a>

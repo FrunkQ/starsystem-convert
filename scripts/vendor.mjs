@@ -40,7 +40,14 @@ const ENTRIES = [
   'import/ubox/index.ts',
   'import/spaceengine/index.ts',
   'export/ubox/write.ts',
-  'export/spaceengine/write.ts'
+  'export/spaceengine/write.ts',
+  // The real-sky lookup: resolve a star through SIMBAD, fetch it and its planets, build the system.
+  // A self-contained island - thirteen files, no physics, no stores - which is why it comes whole.
+  'import/realsky/query.mjs',
+  'import/realsky/catalogue.mjs',
+  'import/realsky/convert.mjs',
+  'import/realsky/starNames.mjs',
+  'import/realsky/positions.mjs'
 ];
 
 /**
@@ -53,7 +60,9 @@ const SUBSTITUTIONS = {
   'physics/stability': 'physicsLeaf',
   'physics/barycenterReconcile': 'physicsLeaf',
   'system/barycentres': 'physicsLeaf',
-  'import/realsky/stars.mjs': 'physicsLeaf',
+  // (`import/realsky/stars.mjs` USED to be substituted here, for the one constant the importers took
+  //  from it. The real-sky lookup needs the whole module, so it now comes over through the normal
+  //  walk - and keeping a substitute beside the real thing would be two answers to one question.)
   // `computeWorldStates3D` asks this where a docked ship sits; it reaches the mega-construct
   // catalogue and its geometry, which imports three.js — a 3D rendering library, in a text converter.
   // Constructs cannot travel to either target format anyway, so the branch is unreachable here.
@@ -152,7 +161,16 @@ for (const key of [...wanted].sort()) {
       .replace(/(\bimport\(\s*)['"]([^'"]+)['"]/g, (m, pre, spec) => `${pre}'${rewrite(spec)}'`);
   }
 
+  // PLAIN JAVASCRIPT IS NOT TYPE-CHECKED HERE, and TypeScript still is. The two are held to
+  // different standards on purpose. Checking the engine's TYPED files is how this project found
+  // seven declaration gaps the engine never saw - names used and never imported, fields read and
+  // never declared. Checking its UNTYPED `.mjs` under strict `checkJs` finds something else
+  // entirely: thirty-six complaints that a JS parameter has no type annotation, which it was never
+  // written to have. That is noise, not findings, and the real-sky modules already have their own
+  // `.spec.js` gates in the engine.
+  const isJs = key.endsWith('.mjs') || key.endsWith('.js');
   const banner = key.endsWith('.json') ? '' :
+    (isJs ? `// @ts-nocheck - vendored plain JavaScript; see scripts/vendor.mjs for why it is not type-checked.\n` : '') +
     `// VENDORED from Star System Explorer, src/lib/${key} — copied on ${stamp}.\n` +
     `// DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the\n` +
     `// two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import\n` +
@@ -161,6 +179,27 @@ for (const key of [...wanted].sort()) {
   const to = path.join(OUT, key);
   fs.mkdirSync(path.dirname(to), { recursive: true });
   fs.writeFileSync(to, banner + text);
+  copied++;
+}
+
+// --- one piece of rule-pack DATA ------------------------------------------------------------------
+// The real-sky converter gives a star whose size nobody has measured the typical mass and radius of
+// its spectral class, from the pack's `statTemplates`. Without that table it does the honest thing
+// and REFUSES - "no stellar parameters were available - not invented" - and measured against the live
+// catalogue that dropped Sirius A and B, both of alpha Centauri's suns, and Kepler-90: every star
+// without a directly measured diameter. The table is a lookup (class in, typical values out), not a
+// simulation, so it sits on the data side of this tool's no-physics line. It is the engine's DEFAULT
+// pack; a GM's own pack may differ, and the engine re-reads the system against it on arrival.
+{
+  const packDir = path.resolve(engine, 'static/rulepacks/starter-sf');
+  const merged = {};
+  for (const f of fs.readdirSync(packDir).filter((n) => n.endsWith('.json')).sort()) {
+    const doc = JSON.parse(fs.readFileSync(path.join(packDir, f), 'utf8'));
+    if (doc.statTemplates) Object.assign(merged, doc.statTemplates);
+  }
+  const to = path.join(OUT, 'data/statTemplates.json');
+  fs.mkdirSync(path.dirname(to), { recursive: true });
+  fs.writeFileSync(to, JSON.stringify(merged, null, 1) + '\n');
   copied++;
 }
 

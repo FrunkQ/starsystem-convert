@@ -38,7 +38,22 @@ import { stateVectorsToElements, type V3 } from './kepler';
 import type { Kepler } from '../../types';
 
 const AU_M = AU_KM * 1000;
-const LOCAL_RADIUS_M = 1e15; // ≈ 6,700 AU — a candidate beyond this from the local cluster is far-field.
+// HOW FAR FROM THE LOCAL CLUSTER A BODY STOPS BELONGING TO THE SYSTEM AT ALL - one parsec.
+//
+// The guard exists to keep GALACTIC CONTEXT out: a Universe Sandbox scene can hold Sagittarius A* at
+// 46,000 light years, and without this it would be picked as the root and everything would orbit a
+// black hole. It used to be 1e15 m, about 6,700 AU, which is four orders of magnitude tighter than
+// that job needs - and tight enough to cut real systems apart. Proxima Centauri orbits alpha Cen AB at
+// about 13,000 AU; a round trip through the Universe Sandbox exporter came back without it, or its two
+// planets, each marked "far field" (measured 2026-09-23).
+//
+// One parsec is where physics puts the line. Nothing stays bound to a solar-mass system beyond its
+// galactic tidal (Jacobi) radius, roughly 1.7 pc x (M / Msun)^(1/3); inside a parsec a genuine wide
+// companion is possible, and the nearest galactic-context object is thousands of parsecs further out.
+// Nothing inside the radius is waved through, either: every body is still placed and put through the
+// binding check, so an unrelated passer-by now comes out UNBOUND instead of far-field - which is the
+// more honest of the two reasons, and still skipped.
+const LOCAL_RADIUS_M = 3.0857e16; // one parsec, ≈ 206,000 AU
 
 export interface BodyInput {
   id: string;

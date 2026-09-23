@@ -7,7 +7,7 @@ import { G, AU_KM, EARTH_MASS_KG, SOLAR_MASS_KG, SOLAR_RADIUS_KM } from '../../c
 import { guessSystemAge } from '../../systemAge';
 import { resolveImportedStarClass } from '../../starClass';
 import { pairThresholds } from '../../physicsLeaf';
-import { UNKNOWN_STAR_CLASS } from '../../physicsLeaf';
+import { UNKNOWN_STAR_CLASS } from '../../import/realsky/stars.mjs';
 import type { System, CelestialBody, Barycenter, Kepler, Makeup } from '../../types';
 import { parseSc, readScSources, isBarycentreType, type ScBlock } from './parse';
 import type { ReferenceSnapshot, SkippedEntity, ImportCounts } from '../shared/review';

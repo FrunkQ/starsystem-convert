@@ -1,7 +1,8 @@
 <script lang="ts">
   import { detectFormat, FORMATS, type FormatId } from '$lib/convert/formats';
-  import { ADAPTERS, type SourceAdapter, type ConvertResult, type BodyPreview } from '$lib/convert/adapters';
+  import { ADAPTERS, countNodes, type SourceAdapter, type ConvertResult, type BodyPreview } from '$lib/convert/adapters';
   import { OUTPUTS, writeFor, download } from '$lib/convert/output';
+  import { resolveStar, systemsAround, nameOf, distanceLyOf, lookupRadiusLy, type SimbadRow } from '$lib/convert/realsky';
   import { LINKS, HOW_TO } from '$lib/links';
 
   type Phase = 'idle' | 'loaded' | 'working' | 'done' | 'error';
@@ -38,9 +39,63 @@
   const fmtSize = (n: number) =>
     n < 1024 * 1024 ? `${Math.round(n / 1024)} KB` : `${(n / 1048576).toFixed(1)} MB`;
 
+  // --- a real star, looked up in the catalogues ---
+  let skyQuery = $state('');
+  let skyBusy = $state(false);
+  let skyNote = $state('');
+  let skyError = $state('');
+  let skyCandidates = $state<SimbadRow[]>([]);
+  /** Set when the result came from the catalogues rather than a file, so the page can say what that means. */
+  let fromSky = $state(false);
+
   function reset() {
     phase = 'idle'; problem = ''; bytes = null; format = null; adapter = null;
     subtitle = ''; systems = []; chosen = 0; bodies = []; result = null;
+    skyNote = ''; skyError = ''; skyCandidates = []; fromSky = false; lastNotes = [];
+  }
+
+  async function lookUp() {
+    const q = skyQuery.trim();
+    if (!q || skyBusy) return;
+    skyBusy = true; skyError = ''; skyNote = ''; skyCandidates = [];
+    try {
+      const r = await resolveStar(q);
+      skyNote = r.note;
+      if (r.kind === 'choose') { skyCandidates = r.candidates; return; }
+      await buildFrom(r.hit);
+    } catch (e) {
+      skyError = (e as Error).message;
+    } finally {
+      skyBusy = false;
+    }
+  }
+
+  async function pickStar(hit: SimbadRow) {
+    skyBusy = true; skyError = ''; skyCandidates = [];
+    try { await buildFrom(hit); } catch (e) { skyError = (e as Error).message; } finally { skyBusy = false; }
+  }
+
+  async function buildFrom(hit: SimbadRow) {
+    const out = await systemsAround(hit);
+    const star = nameOf(hit);
+    if (out.targetDropped) {
+      throw new Error(`${star} was found, but the catalogues do not say enough about it to build a system: ${out.targetDropped}.`);
+    }
+    const found = out.systems[out.chosen];
+    if (!found) throw new Error(`${star} was found, but nothing around it could be built into a system.`);
+
+    const others = out.systems.length - 1;
+    const assumptions = [
+      ...out.warnings,
+      ...(out.matched ? [] : [`No system in the catalogues is named after ${star}, so the one nearest to it, ${found.name}, is shown.`]),
+      ...(others > 0
+        ? [`Only the ${found.name} system is kept. The search looked ${lookupRadiusLy(distanceLyOf(hit)).toFixed(1)} light years around it and found ${others} other star system${others === 1 ? '' : 's'}, which were left out.`]
+        : [])
+    ];
+    result = { system: found.system, counts: countNodes(found.system), assumptions, skipped: [] };
+    fileName = found.name;
+    fromSky = true;
+    phase = 'done';
   }
 
   async function take(f: File | null | undefined) {
@@ -120,9 +175,15 @@
 <h1>Star System Converter</h1>
 <p class="lede">
   Move a star system between <strong>Universe Sandbox</strong>, <strong>SpaceEngine</strong> and
-  <strong>Star System Explorer</strong>. It all happens in this tab — your save is never uploaded
-  anywhere, because there is no server here to upload it to.
+  <strong>Star System Explorer</strong>, or pull a real one out of the star catalogues. Files you drop
+  here never leave this tab &mdash; the only thing this site ever sends anywhere is a star&rsquo;s name,
+  when you look one up.
 </p>
+<!-- THE PROMISE WAS REWORDED, NOT WEAKENED. It used to say "there is no server here to upload it to",
+     which stopped being literally true when the planet lookup needed one route to reach the NASA
+     archive (it sends no CORS headers). What a person cares about - that their save goes nowhere - is
+     exactly as true as before: that route accepts one kind of catalogue query and nothing else. A
+     privacy sentence that is almost true is the kind somebody eventually checks. -->
 
 <div class="notice">
   <h2>Beta, and honestly a bit thrown together</h2>
@@ -156,6 +217,38 @@
       <span class="cta">Choose a file</span>
     </label>
     <p class="hint">.ubox &middot; .sc &middot; .pak &middot; .json &middot; .sse.zip</p>
+  </section>
+
+  <!-- A REAL STAR, AS THE SECOND WAY IN. No file needed: the catalogues are the source. It sits
+       beside the drop zone rather than behind a tab because it is the same job - get a system into
+       one of three formats - and somebody who has no save yet is exactly who it is for. -->
+  <section class="panel sky">
+    <h2>Or look up a real star</h2>
+    <p class="sub">
+      Any catalogued star &mdash; its companions and every confirmed planet, straight from SIMBAD and the
+      NASA Exoplanet Archive.
+    </p>
+    <form class="skyform" onsubmit={(e) => { e.preventDefault(); lookUp(); }}>
+      <input
+        type="text" bind:value={skyQuery} placeholder="TRAPPIST-1, Sirius, eps Eri, Kepler-90…"
+        aria-label="Star name" autocomplete="off" spellcheck="false" disabled={skyBusy}
+      />
+      <button class="cta" type="submit" disabled={skyBusy || !skyQuery.trim()}>
+        {skyBusy ? 'Looking…' : 'Look up'}
+      </button>
+    </form>
+    {#if skyNote}<p class="skynote">{skyNote}</p>{/if}
+    {#if skyError}<p class="problem">{skyError}</p>{/if}
+    {#if skyCandidates.length}
+      <div class="choices sky-choices">
+        {#each skyCandidates as c (c.main_id)}
+          <button class="choice" disabled={skyBusy || !(Number(c.plx_value) > 0)} onclick={() => pickStar(c)}>
+            {nameOf(c)}
+            <span class="why">{Number(c.plx_value) > 0 ? `${distanceLyOf(c).toFixed(1)} ly` : 'no distance'}</span>
+          </button>
+        {/each}
+      </div>
+    {/if}
   </section>
 
   <!-- WHERE PEOPLE ACTUALLY GET STUCK is a step earlier than this page: finding the file at all.
@@ -224,6 +317,21 @@
       {result.counts.planets} planet{result.counts.planets === 1 ? '' : 's'},
       {result.counts.moons} moon{result.counts.moons === 1 ? '' : 's'}{#if result.counts.rings}, {result.counts.rings} ring{result.counts.rings === 1 ? '' : 's'}{/if}{#if result.counts.other}, {result.counts.other} other{/if}
     </p>
+
+    {#if fromSky}
+      <!-- What a catalogue system IS, said once and plainly: the measured part of it. The engine
+           exists to fill in the rest, and this is the moment somebody is most likely to want it. -->
+      <div class="skyfrom">
+        <p>
+          This is what has been <strong>measured</strong> &mdash; the stars and the confirmed planets, nothing
+          invented. Catalogues rarely know about moons, belts or smaller worlds.
+        </p>
+        <p>
+          <a href={LINKS.engine} target="_blank" rel="noopener noreferrer">Star System Explorer</a> can
+          fill those in around the real ones, if you want the whole system rather than the survey.
+        </p>
+      </div>
+    {/if}
 
     <p class="label">Save it as</p>
     <div class="outputs">
@@ -358,6 +466,28 @@
   .notes { margin: 18px 0 0; }
   .notes ul { margin: 6px 0 0; padding-left: 20px; color: var(--ink-dim); font-size: 0.92rem; }
   .notes li { margin-bottom: 5px; }
+
+  .sky { margin: 18px 0 0; }
+  .sky h2 { margin: 0 0 4px; }
+  .skyform { margin: 14px 0 0; display: flex; gap: 10px; flex-wrap: wrap; }
+  .skyform input {
+    flex: 1 1 220px; min-width: 0;
+    background: var(--bg); border: 1px solid var(--edge); border-radius: var(--radius);
+    color: var(--ink); font: inherit; padding: 8px 12px;
+  }
+  .skyform input:focus { outline: none; border-color: var(--accent); }
+  .skyform button.cta { cursor: pointer; }
+  .skynote { margin: 12px 0 0; color: var(--ink-dim); font-size: 0.92rem; }
+  .sky-choices { margin: 10px 0 0; }
+  .choice .why { margin-left: 6px; }
+  .choice:disabled { opacity: 0.5; cursor: default; }
+
+  .skyfrom {
+    margin: 18px 0 0; padding: 12px 14px; border-radius: var(--radius);
+    background: var(--bg); border-left: 3px solid var(--accent);
+  }
+  .skyfrom p { margin: 0; color: var(--ink-dim); font-size: 0.92rem; }
+  .skyfrom p + p { margin-top: 6px; }
 
   .howtos { margin: 18px 0 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
   .howto { background: var(--panel); border: 1px solid var(--edge); border-radius: var(--radius); padding: 12px 14px; }

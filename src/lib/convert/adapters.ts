@@ -36,7 +36,7 @@ export interface SourceAdapter {
   convert(bytes: Uint8Array, index: number, minMassKg: number): ConvertResult;
 }
 
-const countNodes = (system: System): ConvertResult['counts'] => {
+export const countNodes = (system: System): ConvertResult['counts'] => {
   const counts = { stars: 0, planets: 0, moons: 0, other: 0, rings: 0 };
   for (const n of system.nodes ?? []) {
     if (n.kind === 'barycenter') { counts.other++; continue; }
