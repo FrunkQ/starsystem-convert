@@ -40,6 +40,16 @@ export function periodYr(aAU, massKg) {
   return (2 * Math.PI * Math.sqrt(aM ** 3 / (G * massKg))) / SECONDS_PER_YEAR;
 }
 
+// The inverse: how far apart two bodies of total mass massKg can be and still orbit within pYr, in
+// AU. Written beside periodYr so the two cannot drift - it is the same Kepler's third law read the
+// other way. Its first use is sizing a search around ONE star: `groupIntoSystems` only joins a pair
+// whose period is under ORBIT_AUTHOR_MAX_PERIOD_YR, so this at that period is the furthest a
+// companion can be and still be grouped - fetching beyond it only fetches strangers.
+export function separationForPeriodAu(pYr, massKg) {
+  const pS = pYr * SECONDS_PER_YEAR;
+  return Math.cbrt((G * massKg * pS * pS) / (4 * Math.PI * Math.PI)) / (AU_KM * 1000);
+}
+
 // The region's dynamical time: the characteristic period at its radius for
 // its enclosed mass.
 export const dynamicalTimeYr = (radiusLy, massKgEnclosed) =>

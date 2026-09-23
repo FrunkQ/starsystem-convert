@@ -70,3 +70,25 @@ export function distanceLy(aXyzLy, bXyzLy) {
 export function inSphere(candidateXyzLy, centreXyzLy, radiusLy) {
   return distanceLy(candidateXyzLy, centreXyzLy) <= radiusLy;
 }
+
+// THE SAME SHAPE AS THE QUERY: `radiusLy` across the sky, `depthLy` along the line of sight from Sol.
+// An ellipsoid, and exactly the sphere above whenever depth is the radius - which is every region
+// that does not ask for depth, so nothing that already works can move.
+//
+// WHY A REGION NEEDS IT (measured 2026-09-23): GJ 667 C sits ~230 AU from its primary pair GJ 667 AB,
+// but the catalogues place them 1.33 ly apart ALONG THE LINE OF SIGHT - Gaia's parallax for C is
+// 138.07 mas, Hipparcos' for AB 146.29. The grouping rightly joins them (projected separation, and
+// parallaxes within 10%), and then a SPHERE cut on the group's primary threw the whole system away,
+// five planets included, because the primary was "behind" it. The query was already deep and the
+// grouping already tolerant of distance; this was the one test left that was not.
+export function inRegion(candidateXyzLy, centreXyzLy, radiusLy, depthLy = radiusLy) {
+  const d = Math.hypot(centreXyzLy.x, centreXyzLy.y, centreXyzLy.z);
+  if (!(depthLy > radiusLy) || !(d > 0)) return inSphere(candidateXyzLy, centreXyzLy, radiusLy);
+  const ux = centreXyzLy.x / d, uy = centreXyzLy.y / d, uz = centreXyzLy.z / d;
+  const ox = candidateXyzLy.x - centreXyzLy.x;
+  const oy = candidateXyzLy.y - centreXyzLy.y;
+  const oz = candidateXyzLy.z - centreXyzLy.z;
+  const along = ox * ux + oy * uy + oz * uz;
+  const across2 = Math.max(0, ox * ox + oy * oy + oz * oz - along * along);
+  return across2 / (radiusLy * radiusLy) + (along * along) / (depthLy * depthLy) <= 1;
+}

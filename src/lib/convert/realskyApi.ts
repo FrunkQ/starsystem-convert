@@ -15,6 +15,10 @@ import * as catalogue from '$lib/vendor/import/realsky/catalogue.mjs';
 import * as convert from '$lib/vendor/import/realsky/convert.mjs';
 import * as names from '$lib/vendor/import/realsky/starNames.mjs';
 import * as positions from '$lib/vendor/import/realsky/positions.mjs';
+import * as gate from '$lib/vendor/import/realsky/clusterGate.mjs';
+import * as stars from '$lib/vendor/import/realsky/stars.mjs';
+import * as rsConstants from '$lib/vendor/import/realsky/constants.mjs';
+import * as census from '$lib/vendor/import/realsky/census.mjs';
 
 type FetchOpts = { fetchImpl?: typeof fetch; signal?: AbortSignal };
 /** A sphere of `radiusLy`, optionally with its distance shell lengthened to `depthLy` along the line
@@ -50,3 +54,19 @@ export const systemStarName = names.systemStarName as unknown as (mainId: string
 export const designationFor = names.designationFor as unknown as (mainId: string) => string | null;
 
 export const parallaxMasToLy = positions.parallaxMasToLy as unknown as (plxMas: number) => number;
+
+// What decides whether two catalogue stars are ONE system - read here so the lookup can size its
+// search to exactly that, rather than to a number of its own.
+/** The period under which the census groups two stars as one system (1 Myr). */
+export const ORBIT_AUTHOR_MAX_PERIOD_YR = gate.ORBIT_AUTHOR_MAX_PERIOD_YR as number;
+/** Kepler's third law read backwards: the separation, in AU, at which a pair of this mass orbits in pYr. */
+export const separationForPeriodAu = gate.separationForPeriodAu as unknown as (pYr: number, massKg: number) => number;
+/** A star's class-typical parameters from its spectral type and the pack, or null if it has none. */
+export const starParamsFromType = stars.starParamsFromType as unknown as (
+  type: string, statTemplates: unknown, opts?: { otype?: string }
+) => { massMsun: number } | null;
+export const SOLAR_MASS_KG = rsConstants.SOLAR_MASS_KG as number;
+export const AU_PER_LY = rsConstants.AU_PER_LY as number;
+/** Is this catalogue record a whole SYSTEM (a container, standing in for its components) rather than
+ *  one star? Takes the census's normalised shape - `sp`, not SIMBAD's `sp_type`. */
+export const isContainerRow = census.isContainerRow as unknown as (row: { otype?: string; sp?: string }) => boolean;

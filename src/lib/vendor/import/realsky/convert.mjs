@@ -22,7 +22,7 @@
 // looking. Callers pass `existingSystemIds`; a new map passes none.
 
 import { EARTH_MASS_KG, EARTH_RADIUS_KM, EPOCH, G, LY_PER_PC, SOLAR_MASS_KG, SOLAR_RADIUS_KM, AU_KM, DEFAULT_MAP_CENTRE_PX } from './constants.mjs';
-import { hash01, radecToXyzLy, round, xyzToMapPx, inSphere } from './positions.mjs';
+import { hash01, radecToXyzLy, round, xyzToMapPx, inRegion } from './positions.mjs';
 import { starClasses, starParamsFromType, parseStellarType, UNKNOWN_STAR_CLASS } from './stars.mjs';
 import { luminositySolarFrom, companionSpectralType } from './stars.mjs';
 import { deriveStarSize, FIGURE_SOURCE } from './starSize.mjs';
@@ -400,7 +400,7 @@ export function convertRegion(
     const primary = group[0];
     const distLy = distanceLyFromParallax(primary.plxMas);
     const xyz = radecToXyzLy(primary.ra, primary.dec, distLy);
-    if (!inSphere(xyz, centreXyz, region.radiusLy)) continue;
+    if (!inRegion(xyz, centreXyz, region.radiusLy, region.depthLy)) continue;
 
     // The SYSTEM's name, not the primary's: Alpha Centauri, whose primary star is Rigil Kentaurus.
     const name = systemStarName(primary.id);
@@ -485,9 +485,30 @@ export function convertRegion(
       const starId = `${slug}-${isPrimary ? 'star' : `star-${String.fromCharCode(97 + i)}`}`;
       // A matched archive row carries MEASURED parameters and always beats the class estimate.
       const archiveHost = hostsHere.find((h) => h.star === s);
-      const built = archiveHost
+      let built = archiveHost
         ? starNodeFromRow(archiveHost.hostRows[0], slug)
         : starNodeFromCensus(s, starId, statTemplates, starSizes?.get?.(s.id) ?? null);
+      // BUT AN INCOMPLETE ARCHIVE ROW MUST NOT DELETE A STAR THE CENSUS KNOWS. Measured 2026-09-23:
+      // the archive's row for GJ 667 C carries no stellar radius, so this refused the star - and
+      // every one of its five planets with it - although SIMBAD types it M1.5V and the class band
+      // has a radius for exactly that. "Measured beats estimated" is still the rule, applied field
+      // by field: the star is built from the census, and whatever the archive DID measure is laid
+      // over the estimate. DATA-R4 forbids inventing silently, not estimating openly, so the
+      // description names which figures are which.
+      if (archiveHost && built.missing) {
+        const fromArchive = built.missing;
+        const census = starNodeFromCensus(s, starId, statTemplates, starSizes?.get?.(s.id) ?? null);
+        if (!census.missing) {
+          const row = archiveHost.hostRows[0];
+          const measured = [];
+          if (row.st_mass != null) { census.node.massKg = row.st_mass * SOLAR_MASS_KG; measured.push('mass'); }
+          if (row.st_rad != null) { census.node.radiusKm = Math.round(row.st_rad * SOLAR_RADIUS_KM); measured.push('radius'); }
+          if (row.st_teff != null) { census.node.temperatureK = Math.round(row.st_teff); measured.push('temperature'); }
+          if (row.st_lum != null) { census.node.radiationOutput = 10 ** row.st_lum; measured.push('luminosity'); }
+          census.node.description = `${census.node.description ?? ''}The NASA Exoplanet Archive lists planets here but has no ${fromArchive.join(' or ')} for the star, so ${measured.length ? `its measured ${measured.join(', ')} ${measured.length === 1 ? 'is' : 'are'} used and ` : ''}the rest is typical for its class.`.trim();
+          built = census;
+        }
+      }
       if (built.missing) { skipped.push({ hostname: cleanStarName(s.id), reason: `missing ${built.missing.join(', ')} — not invented` }); return; }
       built.node.id = starId;
       built.node.name = cleanStarName(s.id);
@@ -603,7 +624,7 @@ export function convertRegion(
   //    coordinate ORIGIN, so "is Sol in the region" is "does the region contain the origin", which
   //    the existing sphere maths already answers. Filled from the shipped preset and NEVER from the
   //    generator: the one outcome nobody wants is an invented Solar System.
-  if (solPreset && inSphere({ x: 0, y: 0, z: 0 }, centreXyz, region.radiusLy)) {
+  if (solPreset && inRegion({ x: 0, y: 0, z: 0 }, centreXyz, region.radiusLy, region.depthLy)) {
     const solId = 'sys-sol';
     if (existing.has(solId)) {
       collisions.push({ hostname: 'Sol', systemId: solId, bundledSystemId: solId, planets: 0 });
@@ -673,7 +694,7 @@ export function convertArchiveRows(rows, { region, mapCentrePx = DEFAULT_MAP_CEN
     const first = hostRows[0];
     const distLy = first.sy_dist * LY_PER_PC;
     const xyz = radecToXyzLy(first.ra, first.dec, distLy);
-    if (!inSphere(xyz, centreXyz, region.radiusLy)) continue; // outside the true sphere
+    if (!inRegion(xyz, centreXyz, region.radiusLy, region.depthLy)) continue; // outside the true region
 
     let slug = hostSlug(hostname);
     if (usedSlugs.has(slug)) slug = `${slug}-${hash01(hostname).toFixed(4).slice(2)}`;

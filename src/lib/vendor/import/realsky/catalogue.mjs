@@ -16,7 +16,7 @@
 import { LY_PER_PC } from './constants.mjs';
 import { archivePlanetsAdql, simbadStarsAdql, simbadStarFluxAdql, simbadStarTeffAdql, simbadComponentsOfAdql, runTap } from './query.mjs';
 import { isContainerRow } from './census.mjs';
-import { inSphere, radecToXyzLy } from './positions.mjs';
+import { inRegion, radecToXyzLy } from './positions.mjs';
 
 export const BUNDLED_CACHE_URL = '/realsky/pscomppars.json';
 export const BUNDLED_STARS_URL = '/realsky/stars.json';
@@ -49,7 +49,7 @@ export async function loadStarRows(region, { fetchImpl = fetch, signal } = {}) {
       : { x: 0, y: 0, z: 0 };
     const rows = all.filter((r) => {
       if (!(r.plx_value > 0)) return false;
-      return inSphere(radecToXyzLy(r.ra, r.dec, (1000 / r.plx_value) * LY_PER_PC), centreXyz, region.radiusLy);
+      return inRegion(radecToXyzLy(r.ra, r.dec, (1000 / r.plx_value) * LY_PER_PC), centreXyz, region.radiusLy, region.depthLy);
     });
     const reachLy = (region.centre?.distLy ?? 0) + region.radiusLy;
     const warning = reachLy > BUNDLED_CACHE_MAX_LY

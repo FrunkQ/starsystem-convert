@@ -17,7 +17,8 @@ import {
   loadStarRows, loadArchiveRows, loadStarSizes, loadContainerComponents,
   convertRegion, cleanStarName,
   toAsciiQuery, displayStarName, designationFor, toCatalogueTerm, systemStarName,
-  parallaxMasToLy, HOST_MATCH_DIST_FRAC
+  parallaxMasToLy, HOST_MATCH_DIST_FRAC,
+  ORBIT_AUTHOR_MAX_PERIOD_YR, separationForPeriodAu, starParamsFromType, SOLAR_MASS_KG, AU_PER_LY, isContainerRow
 } from './realskyApi';
 import statTemplates from '$lib/vendor/data/statTemplates.json';
 import type { System, CelestialBody } from '$lib/vendor/types';
@@ -156,27 +157,49 @@ export const nameOf = (row: SimbadRow) => displayStarName(row.main_id);
 // --- building the system --------------------------------------------------------------------------
 
 /**
- * WHERE TO LOOK: ONE SYSTEM'S WORTH OF SKY, AND NO MORE.
+ * WHERE TO LOOK: ONE SYSTEM'S WORTH OF SKY, SIZED BY GRAVITY RATHER THAN BY A ROUND NUMBER.
  *
- * Every format this tool writes holds one system, so it fetches one. Two numbers, because the sky and
- * the distance are not equally uncertain:
+ * ACROSS THE SKY - how far out a companion can be and still be part of this star's system. There are
+ * two gravitational answers, about twenty times apart, and the difference is the whole design:
  *
- *  - ACROSS the sky, a light year around the star. Both catalogues agree on where a star sits to
- *    arcseconds, and a bound companion can be well out - Proxima is 0.21 ly from alpha Centauri AB.
- *  - ALONG the line of sight, exactly as far as the planet join will accept: the two catalogues may
- *    disagree on distance by up to `HOST_MATCH_DIST_FRAC` and still be matched, so the shell reaches
- *    that far. Further would fetch rows the join must reject; shorter would miss planets it would
- *    have matched - which is what happened to Kepler-90's eight at 2,789 ly with a plain sphere.
+ *  - The HILL SPHERE. For a star in the galaxy that is its tidal (Jacobi) radius, roughly
+ *    1.37 pc x (M / Msun)^(1/3): nothing beyond it can be bound, so it is the CEILING on what any
+ *    catalogue import may call one system. But it is large - 4.5 ly for a Sun-like star, 5.7 ly for
+ *    alpha Centauri - and a catalogue holds positions, not velocities, so inside it a companion and a
+ *    stranger look the same. Alpha Centauri's Hill sphere contains the Sun. As a TEST it would merge
+ *    strangers.
+ *  - The engine's GROUPING RULE, which is the test actually applied: two stars are one system when
+ *    their orbit at that separation takes under ORBIT_AUTHOR_MAX_PERIOD_YR (a million years) - about
+ *    0.2 ly for a Sun-like pair, always well inside the Hill sphere.
  *
- * This replaced a sphere widened to cover the distance disagreement, which at Kepler-90 swept a
- * 1.7-degree cone of the Kepler field and fetched 148 systems to keep one.
+ * So the search reaches exactly as far as the grouping can join: nothing beyond it could become part
+ * of the system, and fetching it would only fetch strangers. The reach depends on the PAIR's mass, not
+ * the searched star's alone - which is what lets a search from a small companion reach a heavy primary
+ * further out - and the partner is not known until it is found, so the heaviest star the pack knows
+ * stands in for it. Because reach grows only as the cube root of mass, that lands between ~0.73 ly (a
+ * red dwarf) and ~0.93 ly (the heaviest pair possible) for any star.
+ *
+ * ALONG THE LINE OF SIGHT - exactly as far as the planet join will accept, `HOST_MATCH_DIST_FRAC` of
+ * the distance, because the two catalogues disagree about distance far more than about position.
  */
-export const LOOKUP_RADIUS_LY = 1;
-export const lookupDepthLy = (distLy: number) => Math.max(LOOKUP_RADIUS_LY, HOST_MATCH_DIST_FRAC * distLy);
+const HEAVIEST_STAR_MSUN = Math.max(
+  ...Object.entries(statTemplates as Record<string, { mass_solar?: number[] }>)
+    .filter(([key, band]) => key.startsWith('star/') && Array.isArray(band.mass_solar))
+    .map(([, band]) => band.mass_solar![1])
+);
+
+export function lookupRadiusLy(hit: SimbadRow): number {
+  // A star whose class the pack cannot read is given the heaviest mass - the search can only grow.
+  const ownMsun = starParamsFromType(hit.sp_type ?? '', statTemplates, { otype: hit.otype })?.massMsun ?? HEAVIEST_STAR_MSUN;
+  const reachAu = separationForPeriodAu(ORBIT_AUTHOR_MAX_PERIOD_YR, (ownMsun + HEAVIEST_STAR_MSUN) * SOLAR_MASS_KG);
+  return reachAu / AU_PER_LY;
+}
+export const lookupDepthLy = (distLy: number, radiusLy: number) => Math.max(radiusLy, HOST_MATCH_DIST_FRAC * distLy);
 
 export async function systemsAround(hit: SimbadRow): Promise<Lookup> {
   const distLy = distanceLyOf(hit);
-  const region = { centre: { raDeg: hit.ra, decDeg: hit.dec, distLy }, radiusLy: LOOKUP_RADIUS_LY, depthLy: lookupDepthLy(distLy) };
+  const radiusLy = lookupRadiusLy(hit);
+  const region = { centre: { raDeg: hit.ra, decDeg: hit.dec, distLy }, radiusLy, depthLy: lookupDepthLy(distLy, radiusLy) };
 
   // Sizes are pure enrichment: `loadStarSizes` swallows its own failures, because a missing size is a
   // less good star, never a failed lookup.
@@ -201,27 +224,21 @@ export async function systemsAround(hit: SimbadRow): Promise<Lookup> {
     { region, mapCentrePx: { x: 0, y: 0 }, starSizes: sizes.sizes, generated: new Date().toISOString().slice(0, 10) }
   ) as unknown as RegionResult;
 
-  // WHICH SYSTEM WAS ASKED FOR. Never "the first one", which is an accident of distance order -
-  // Kepler-90's search region holds 148 systems. In order of certainty:
-  //
-  //  1. BY THE SYSTEM'S NAME, computed the way the engine computes it. `convertRegion` names every
-  //     system `systemStarName(primary)`, which strips a component suffix, so "alf Cen A", "alf Cen B"
-  //     and the container record "alf Cen" all name the same system "Alpha Centauri". Asking the same
-  //     function about the search hit matches by construction rather than by coincidence - a search
-  //     that lands on a container (whose components replace it, so no star carries its name) is
-  //     caught here.
-  //  2. BY A STAR'S NAME, for a companion whose designation differs from its primary's: Proxima is
-  //     "Proxima Centauri" in a system called Alpha Centauri.
-  //  3. BY DISTANCE - the system nearest the searched star, if neither name is found. Not a guess
-  //     about which system someone meant: the search was centred on that exact point.
+  // WHICH RETURNED SYSTEM WAS ASKED FOR. The naming is entirely the engine's; this only compares
+  // names it produced. A searched star must be present by its own name - a system-name match alone
+  // once handed back GJ 667 C's companions while GJ 667 C itself had been dropped. A searched
+  // container record is replaced by its components, so there the system's name is what matches.
+  // Failing both, the nearest system - unless the searched star was dropped, which is reported.
+  const hitIsContainer = isContainerRow({ otype: hit.otype, sp: hit.sp_type });
   const systemName = systemStarName(hit.main_id);
   const starName = cleanStarName(hit.main_id);
+  const holdsStar = (s: { system: System }) => (s.system.nodes ?? []).some(
+    (n) => n.kind === 'body' && (n as CelestialBody).roleHint === 'star' && n.name === starName
+  );
   const systems: FoundSystem[] = out.systems.map((s) => ({
     name: s.name,
     system: s.system,
-    containsQuery: s.name === systemName || (s.system.nodes ?? []).some(
-      (n) => n.kind === 'body' && (n as CelestialBody).roleHint === 'star' && n.name === starName
-    )
+    containsQuery: holdsStar(s) || (hitIsContainer && s.name === systemName)
   }));
   const offset = (p: { x: number; y: number; z?: number }) => Math.hypot(p.x, p.y, p.z ?? 0);
   let chosen = systems.findIndex((s) => s.containsQuery);
@@ -238,8 +255,9 @@ export async function systemsAround(hit: SimbadRow): Promise<Lookup> {
   // star is present but named differently. If the census DROPPED it - no usable spectral type, say -
   // then the nearest system is somebody else's star, and handing it back would be answering a
   // different question without saying so.
-  const dropped = out.skipped.find((s) => s.hostname === hit.main_id);
   const matched = systems.some((s) => s.containsQuery);
+  // `skipped` names a star by `cleanStarName`, not by SIMBAD's raw main_id - so ask in that form.
+  const dropped = hitIsContainer ? undefined : out.skipped.find((s) => s.hostname === starName || s.hostname === hit.main_id);
 
   return { systems, chosen, matched, targetDropped: matched ? undefined : dropped?.reason, warnings, skipped: out.skipped };
 }
