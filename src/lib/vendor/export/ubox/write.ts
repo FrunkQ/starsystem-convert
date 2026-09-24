@@ -1,4 +1,4 @@
-// VENDORED from Star System Explorer, src/lib/export/ubox/write.ts — copied on 2026-09-23.
+// VENDORED from Star System Explorer, src/lib/export/ubox/write.ts — copied on 2026-09-24.
 // DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the
 // two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import
 // paths and that script's declared substitutions are the only intended differences.
@@ -27,7 +27,8 @@
 // scattered back into particles, which is how Universe Sandbox represents them and how the importer
 // reads them back.
 import { zipSync, strToU8 } from 'fflate';
-import { G, AU_KM, EARTH_MASS_KG, SOLAR_MASS_KG, SOLAR_RADIUS_KM, STEFAN_BOLTZMANN_CONSTANT } from '../../constants';
+import { G, AU_KM, SOLAR_MASS_KG, SOLAR_RADIUS_KM, STEFAN_BOLTZMANN_CONSTANT } from '../../constants';
+import { makeupOrStandIn } from '../../export/fallbackMakeup';
 import { computeWorldStates3D } from '../../physics/worldPositions';
 import type { System, CelestialBody, Barycenter, Makeup } from '../../types';
 import templateJson from './template.json';
@@ -59,10 +60,17 @@ export interface UboxExportResult {
   notes: string[];
 }
 
-// Inverse of the reader's depot maps. One-to-many in reverse, so each is a CHOICE, made towards the
-// spelling Universe Sandbox's own saves use.
+// Inverse of the reader's depot maps, written ONLY in materials Universe Sandbox has. Its saves use
+// thirteen - Hydrogen, Helium, Water, Methane, Ammonia, Silicate, Iron, Oxygen, Argon, Carbon Dioxide,
+// Nitrogen, Sulfur Dioxide, Degenerate Matter - and nothing else, in 417 bodies across five saves.
+// There is no "Water Ice": water is one material whatever its phase, and the program decides the
+// phase from temperature. This map once said 'Water Ice' and 'Carbon', neither of which the program
+// knows, so an icy body carried much of its mass in a material the program has no entry for - 40% of
+// Yohura's - and testers reported masses coming out wrong.
 const MAKEUP_DEPOT: Record<Exclude<keyof Makeup, 'gas'>, string> = {
-  metal: 'Iron', rock: 'Silicate', carbon: 'Carbon', ice: 'Water Ice'
+  metal: 'Iron', rock: 'Silicate', ice: 'Water',
+  // No carbon material exists; silicate is the nearest in density, and the export says so.
+  carbon: 'Silicate'
 };
 const GAS_DEPOT: Record<string, [string, number]> = {
   N2: ['Nitrogen', 28], O2: ['Oxygen', 32], Ar: ['Argon', 40], CO2: ['Carbon Dioxide', 44],
@@ -130,20 +138,13 @@ function atmosphereMassFor(pressureBar: number, massKg: number, radiusM: number)
 }
 
 /**
- * A stand-in interior for a body the system gives no composition. Universe Sandbox's mass IS its
- * inventory - the program's own saves have depots that sum to the mass exactly - so a body cannot go
- * out with none. The choice is by bulk density, and is reported.
+ * The mass inventory Universe Sandbox stores for a body, summing exactly to its mass - the program's
+ * own saves do, so a body cannot go out with none. A body with no stated composition gets the shared
+ * stand-in (export/fallbackMakeup.ts), and the export reports it.
  */
-function fallbackMakeup(massKg: number, radiusM: number): Makeup {
-  const density = radiusM > 0 ? massKg / ((4 / 3) * Math.PI * radiusM ** 3) : 5500;
-  if (massKg > 10 * EARTH_MASS_KG || (density < 2000 && massKg > 2 * EARTH_MASS_KG)) return { rock: 0.05, metal: 0.05, gas: 0.9 };
-  if (density < 2500) return { rock: 0.5, ice: 0.5 };
-  return { metal: 0.32, rock: 0.68 };
-}
-
-/** The mass inventory Universe Sandbox stores for a body, summing exactly to its mass. */
 function inventory(
-  body: CelestialBody, isStar: boolean, massKg: number, radiusM: number, onFallback: () => void
+  body: CelestialBody, isStar: boolean, massKg: number, radiusM: number,
+  onFallback: () => void, onCarbon: () => void
 ): { depots: Record<string, number>; atmMass: number } {
   const depots: Record<string, number> = {};
   const add = (name: string, m: number) => { if (m > 0) depots[name] = (depots[name] ?? 0) + m; };
@@ -160,12 +161,12 @@ function inventory(
     if (skin > 0.5 * massKg) { const k = (0.5 * massKg) / skin; waterMass *= k; atmMass *= k; }
     const interior = massKg - waterMass - atmMass;
 
-    let mk = body.makeup;
-    const total = mk ? (Object.values(mk) as number[]).reduce((s, v) => s + (v ?? 0), 0) : 0;
-    if (!mk || !(total > 0)) { mk = fallbackMakeup(massKg, radiusM); onFallback(); }
+    const { makeup: mk, standIn } = makeupOrStandIn({ ...body, radiusKm: radiusM / 1000 });
+    if (standIn) onFallback();
     const sum = (Object.values(mk) as number[]).reduce((s, v) => s + (v ?? 0), 0);
     for (const [key, frac] of Object.entries(mk) as [keyof Makeup, number][]) {
       if (!(frac > 0)) continue;
+      if (key === 'carbon') onCarbon();
       const m = (frac / sum) * interior;
       if (key === 'gas') { add('Hydrogen', m * HYDROGEN_MASS_FRACTION); add('Helium', m * (1 - HYDROGEN_MASS_FRACTION)); }
       else add(MAKEUP_DEPOT[key], m);
@@ -251,6 +252,7 @@ export function exportUbox(system: System, options: UboxExportOptions = {}): Ubo
   let nextTile = 0;
   let fallbacks = 0;
   let radiusGuesses = 0;
+  const carbonBodies = new Set<string>();
   for (const body of ordered) {
     const isStar = body.roleHint === 'star';
     const st = usState(body.id)!;
@@ -302,7 +304,7 @@ export function exportUbox(system: System, options: UboxExportOptions = {}): Ubo
       RelativeTo: rootId
     });
 
-    const { depots, atmMass } = inventory(body, isStar, massKg, radiusM, () => fallbacks++);
+    const { depots, atmMass } = inventory(body, isStar, massKg, radiusM, () => fallbacks++, () => carbonBodies.add(body.id));
     const temperatureK = body.temperatureK ?? 0;
     const luminosity = isStar
       ? ((body as CelestialBody & { radiationOutput?: number }).radiationOutput
@@ -317,6 +319,11 @@ export function exportUbox(system: System, options: UboxExportOptions = {}): Ubo
     });
     const composition = comp(e, 'CompositionComponent');
     composition.targetRadius = radiusM;
+    // KEEP THE STATED SIZE. Left on, the program re-derives the radius from composition with its own
+    // model, so a world stated at one density arrives at another. The program itself switches this off
+    // for any body whose size or density was set by hand (every such body in the saves measured), and
+    // a converted body's size was set by whoever made it.
+    composition.SimulateRadius = false;
     for (const [depot, m] of Object.entries(depots)) composition.depots[depot] = { Mass: m, LockSurfaceTracking: false };
     // The trail is a fixed ring buffer the program writes out in full; an empty one has every slot at
     // the origin and its cursor at zero.
@@ -389,6 +396,9 @@ export function exportUbox(system: System, options: UboxExportOptions = {}): Ubo
   }
   for (const [role, count] of dropped) {
     notes.push(`${count} ${role}${count === 1 ? '' : 's'} left out — Universe Sandbox has nothing to put them in.`);
+  }
+  if (carbonBodies.size) {
+    notes.push(`Carbon in ${carbonBodies.size} bod${carbonBodies.size === 1 ? 'y' : 'ies'} went out as silicate — Universe Sandbox has no carbon material.`);
   }
   if (fallbacks) {
     notes.push(`${fallbacks} bod${fallbacks === 1 ? 'y has' : 'ies have'} no composition in this system, so ${fallbacks === 1 ? 'it was' : 'they were'} given a typical one for ${fallbacks === 1 ? 'its' : 'their'} density — Universe Sandbox stores a body's mass as what it is made of.`);

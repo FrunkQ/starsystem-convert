@@ -1,6 +1,6 @@
 {
   "name": "starsystem-convert",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Convert star systems between Universe Sandbox, SpaceEngine and Star System Explorer, in your browser.",
   "type": "module",

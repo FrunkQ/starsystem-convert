@@ -209,9 +209,16 @@
     web page over a couple of sittings. It works, but it has not met many files yet, and yours may
     well be the one that breaks it.
   </p>
+  <!-- Owner, 2026-09-24: set the expectation so testers report what matters, not every small drift.
+       Water is the example because it is the real one: it is what the first round of reports was. -->
   <p>
-    That is genuinely useful to us — if something comes out wrong, or will not load at all, please
-    say so in
+    <strong>Expect to finish it by hand.</strong> These programs model a world differently &mdash;
+    Universe Sandbox has one &ldquo;water&rdquo;, where Star System Explorer keeps ocean, ice and cloud
+    apart &mdash; so every conversion makes some broad assumptions. It aims to get you most of the way
+    there; small differences are the nature of the job.
+  </p>
+  <p>
+    What does help us: if a file will not load, or a system comes out badly wrong, please say so in
     <a href={LINKS.discordChannel} target="_blank" rel="noopener noreferrer">{LINKS.discordChannelName}</a>
     on <a href={LINKS.discordInvite} target="_blank" rel="noopener noreferrer">our Discord</a> (that
     second link is the one to use if you are not in the server yet), or open an issue on

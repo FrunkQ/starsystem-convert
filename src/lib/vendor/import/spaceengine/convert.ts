@@ -1,4 +1,4 @@
-// VENDORED from Star System Explorer, src/lib/import/spaceengine/convert.ts — copied on 2026-09-23.
+// VENDORED from Star System Explorer, src/lib/import/spaceengine/convert.ts — copied on 2026-09-24.
 // DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the
 // two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import
 // paths and that script's declared substitutions are the only intended differences.
@@ -17,6 +17,38 @@ export const SE_RECOMMENDED_MIN_MASS_KG = 1e20; // keeps major moons + dwarf pla
 /** One standard atmosphere in bar. SpaceEngine states pressure in atm, SSG stores bar; the reader
  *  and the writer share this so a round trip cannot drift. */
 export const BAR_PER_ATM = 1.01325;
+
+/**
+ * An SSG liquid as SpaceEngine writes an ocean's composition, in percent - one table for the reader
+ * and the writer. SpaceEngine's own Earth is 96.5 H2O / 3.5 NaCl, which is what brine is here. A liquid
+ * missing from this table (magma, molten iron, metallic hydrogen...) has no SpaceEngine ocean.
+ */
+export const OCEAN_SPECIES: Record<string, Record<string, number>> = {
+  water: { H2O: 100 },
+  'salty-water': { H2O: 96.5, NaCl: 3.5 },
+  'water-ammonia': { H2O: 70, NH3: 30 },
+  ammonia: { NH3: 100 },
+  methane: { CH4: 100 },
+  ethane: { C2H6: 100 },
+  nitrogen: { N2: 100 },
+  'sulfuric-acid': { H2SO4: 100 },
+  'carbon-dioxide': { CO2: 100 },
+  'hydrogen-sulfide': { H2S: 100 },
+  'hydrogen-cyanide': { HCN: 100 },
+  sulfur: { S: 100 },
+  'sulfur-dioxide': { SO2: 100 }
+};
+
+/** The SSG liquid an ocean's stated composition reads as: its main species, with brine and a
+ *  water-ammonia mix told apart from plain water. Unrecognised or absent -> water, as before. */
+export function liquidFromOceanSpecies(comp: Record<string, number>): string {
+  const pct = (k: string) => comp[k] ?? 0;
+  let main = ''; let best = 0;
+  for (const [k, v] of Object.entries(comp)) if (v > best) { best = v; main = k; }
+  if (main === 'H2O') return pct('NH3') >= 5 ? 'water-ammonia' : pct('NaCl') >= 1 ? 'salty-water' : 'water';
+  const hit = Object.entries(OCEAN_SPECIES).find(([, sp]) => Object.keys(sp).length === 1 && sp[main] === 100);
+  return hit ? hit[0] : 'water';
+}
 
 export interface ScImportOptions { minBodyMassKg?: number; }
 export interface ScImportResult {
@@ -287,7 +319,16 @@ export function convertSc(sources: string[], options: ScImportOptions = {}): ScI
       // mass/radius/density, so an ice-dominated makeup doesn't change its type.
       const mk = makeupFromInterior(b, assumptions, name); if (mk) node.makeup = mk;
       const atm = atmosphereFrom(b); if (atm) node.atmosphere = atm;
-      if (sub(b, 'Ocean')) { node.hydrosphere = { composition: 'water', coverage: 0.6 }; assumptions.push(`${name}: ocean present in the source but coverage isn't stored — assumed 60%.`); }
+      const ocean = sub(b, 'Ocean');
+      if (ocean) {
+        // What the ocean is made of IS stated (Earth: 96.5 H2O, 3.5 NaCl), so it is read; how much of
+        // the world it covers is not, so that is assumed and said.
+        const oc = sub(ocean, 'Composition');
+        const species: Record<string, number> = {};
+        for (const [k, v] of Object.entries(oc?.keys ?? {})) { const p = num(v); if (p != null && p > 0) species[k] = p; }
+        node.hydrosphere = { composition: liquidFromOceanSpecies(species), coverage: 0.6 };
+        assumptions.push(`${name}: ocean present in the source but coverage isn't stored — assumed 60%.`);
+      }
       if (role === 'planet') counts.planets++; else counts.moons++;
     }
 

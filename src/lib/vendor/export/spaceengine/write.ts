@@ -1,4 +1,4 @@
-// VENDORED from Star System Explorer, src/lib/export/spaceengine/write.ts — copied on 2026-09-23.
+// VENDORED from Star System Explorer, src/lib/export/spaceengine/write.ts — copied on 2026-09-24.
 // DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the
 // two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import
 // paths and that script's declared substitutions are the only intended differences.
@@ -18,7 +18,8 @@
 //    SpaceEngine even though SSG only calls it one above the hydrogen-burning limit. Those are
 //    SpaceEngine's questions and they get SpaceEngine's answers.
 import { AU_KM, EARTH_MASS_KG, SOLAR_MASS_KG, SOLAR_RADIUS_KM } from '../../constants';
-import { BAR_PER_ATM } from '../../import/spaceengine/convert';
+import { BAR_PER_ATM, OCEAN_SPECIES } from '../../import/spaceengine/convert';
+import { makeupOrStandIn } from '../../export/fallbackMakeup';
 import type { System, CelestialBody, Barycenter, Makeup } from '../../types';
 
 export interface ScExportResult {
@@ -62,9 +63,12 @@ function uniqueNames(nodes: (CelestialBody | Barycenter)[]): Map<string, string>
 /**
  * The boundaries SpaceEngine itself publishes, read off composition — which is exactly what SSG's
  * `makeup` holds. Hydrogen first because a giant is a giant whatever else is in it.
+ *
+ * The makeup passed in is the body's own OR the shared stand-in (export/fallbackMakeup.ts), never
+ * nothing. With nothing, a 0.93-Jupiter-mass giant with no stated makeup fell through every test to
+ * "its ocean covers everything", and SpaceEngine showed it as a mega-aquaria.
  */
-function planetClass(body: CelestialBody): string {
-  const mk: Makeup = body.makeup ?? {};
+function planetClass(mk: Makeup, body: CelestialBody): string {
   const pct = (v: number | undefined) => (v ?? 0) * 100;
   const gas = pct(mk.gas);
   if (gas > 0.01) return gas < 25 ? 'Neptune' : 'Jupiter';
@@ -73,6 +77,7 @@ function planetClass(body: CelestialBody): string {
   if (pct(mk.ice) > 25 || (body.hydrosphere?.coverage ?? 0) > 0.9) return 'Aquaria';
   return 'Terra';
 }
+const isGiantClass = (cls: string) => cls === 'Jupiter' || cls === 'Neptune';
 
 /** A star's designation as SpaceEngine writes it: `star/G2V` -> `G2V`. The FULL class, never the band. */
 function starClassOf(body: CelestialBody): string {
@@ -123,12 +128,25 @@ function atmosphereBlock(body: CelestialBody, indent: string): string[] {
   return lines;
 }
 
-function oceanBlock(body: CelestialBody, indent: string): string[] {
+/**
+ * The ocean, WITH what it is made of. This used to write an empty `Ocean { }` - no height, no
+ * composition - so SpaceEngine listed an ocean of nothing in particular. The liquid is named in
+ * SpaceEngine's own species (OCEAN_SPECIES, shared with the reader). A giant gets no ocean: it has no
+ * surface to hold one, and a hydrosphere on a giant is bulk water that belongs in its interior. A
+ * liquid SpaceEngine has no ocean for (magma, molten iron, metallic hydrogen) is left out and counted.
+ */
+function oceanBlock(body: CelestialBody, cls: string, indent: string, onNoEquivalent: () => void): string[] {
   const h = body.hydrosphere;
-  if (!h || !((h.coverage ?? 0) > 0)) return [];
+  if (!h || !((h.coverage ?? 0) > 0) || isGiantClass(cls)) return [];
+  const liquid = h.composition || 'water';
+  if (liquid === 'none') return [];
+  const species = OCEAN_SPECIES[liquid];
+  if (!species) { onNoEquivalent(); return []; }
   const lines = [`${indent}Ocean`, `${indent}{`];
   if (h.depth_m && h.depth_m > 0) lines.push(`${indent}\tHeight${' '.repeat(9)}${(h.depth_m / 1000).toPrecision(4)}\t// km`);
-  lines.push(`${indent}}`);
+  lines.push(`${indent}\tComposition // values in percent`, `${indent}\t{`);
+  for (const [k, v] of Object.entries(species)) lines.push(`${indent}\t\t${k.padEnd(8)}${v.toFixed(2)}`);
+  lines.push(`${indent}\t}`, `${indent}}`);
   return lines;
 }
 
@@ -230,6 +248,8 @@ export function exportSc(system: System): ScExportResult {
     return mass < DWARF_CUTOFF_KG ? 'DwarfPlanet' : 'Planet';
   };
 
+  let standIns = 0;
+  let oceansLeft = 0;
   const L: string[] = [
     `// Star system exported from Star System Explorer.`,
     `// ${system.name ?? 'Untitled'} — ${ordered.length} objects, system age ${(system.age_Gyr ?? 0).toFixed(2)} Gyr.`,
@@ -256,7 +276,7 @@ export function exportSc(system: System): ScExportResult {
         if (body.temperatureK) L.push(`\tTemperature${' '.repeat(5)}${Math.round(body.temperatureK)}`);
         if (system.age_Gyr) L.push(`\tAge${' '.repeat(13)}${system.age_Gyr.toPrecision(4)}\t// Gyr`);
       } else {
-        L.push(`\tClass${' '.repeat(11)}"${planetClass(body)}"`);
+        L.push(`\tClass${' '.repeat(11)}"${planetClass(makeupOrStandIn(body).makeup, body)}"`);
         // Planets and moons are in EARTH masses; a giant also gets its Jupiter figure as a comment,
         // because that is the number a person reading the file will be checking against.
         if (mass > 0) {
@@ -272,17 +292,21 @@ export function exportSc(system: System): ScExportResult {
 
     const inner = '\t';
     if (body && !isStarBlock) {
+      const { makeup, standIn } = makeupOrStandIn(body);
+      if (standIn) standIns++;
       const rings = ringsBlock(ringByHost.get(n.id), inner);
       if (!rings.length) L.push(`\tNoRings${' '.repeat(9)}true`);
-      L.push(...interiorBlock(body.makeup, inner));
+      L.push(...interiorBlock(makeup, inner));
       const atm = atmosphereBlock(body, inner);
       if (atm.length) L.push(...atm); else L.push(`\tNoAtmosphere${' '.repeat(4)}true`);
-      L.push(...oceanBlock(body, inner));
+      L.push(...oceanBlock(body, planetClass(makeup, body), inner, () => oceansLeft++));
       L.push(...rings);
     }
     L.push(...orbitBlock(n, inner));
     L.push('}', '');
   }
 
+  if (standIns) notes.push(`${standIns} bod${standIns === 1 ? 'y has' : 'ies have'} no composition in this system, so ${standIns === 1 ? 'it was' : 'they were'} given a typical one for ${standIns === 1 ? 'its' : 'their'} mass and density — SpaceEngine names a planet's class from what it is made of.`);
+  if (oceansLeft) notes.push(`${oceansLeft} ocean${oceansLeft === 1 ? '' : 's'} of a liquid SpaceEngine has no ocean for (such as magma or molten iron) left out.`);
   return { text: L.join('\n'), notes };
 }

@@ -1,4 +1,4 @@
-// VENDORED from Star System Explorer, src/lib/import/ubox/convert.ts — copied on 2026-09-23.
+// VENDORED from Star System Explorer, src/lib/import/ubox/convert.ts — copied on 2026-09-24.
 // DO NOT EDIT HERE without making the same change in the engine: this file has a twin, and the
 // two drifting apart is the known cost of the copy. Re-copy with scripts/vendor.mjs; the import
 // paths and that script's declared substitutions are the only intended differences.
@@ -265,15 +265,15 @@ function buildNode(
   } else {
     // Planets/moons: makeup, atmosphere, hydrosphere from depots
     const atmosphereMass = cel?.AtmosphereMass ?? 0;
-    const waterMass = depots['Water']?.Mass ?? 0;
+    const volatiles = splitVolatiles(depots, massKg, atmosphereMass, radiusM);
 
-    const makeup = makeupFromDepots(depots, massKg, atmosphereMass, waterMass, e.Name ?? p.id, assumptions);
+    const makeup = makeupFromDepots(depots, massKg, atmosphereMass, volatiles, e.Name ?? p.id, assumptions);
     if (makeup) node.makeup = makeup;
 
     const atmosphere = atmosphereFromDepots(depots, atmosphereMass, massKg, radiusM);
     if (atmosphere) node.atmosphere = atmosphere;
 
-    const hydro = hydrosphereFromWater(waterMass, radiusM);
+    const hydro = hydrosphereFromWater(volatiles.oceanMass, radiusM);
     if (hydro) node.hydrosphere = hydro;
 
     // pressure snapshot for the review cross-check
@@ -300,23 +300,68 @@ function recordPressure(snapshot: UsReferenceSnapshot, id: string, pressureBar: 
   snapshot[id] = { ...(snapshot[id] ?? { name: id, roleHint: 'planet' }), pressureBar };
 }
 
+/** The ocean depth at which the hydrosphere estimate below reaches full coverage (about 5.5 km). */
+const FULL_OCEAN_DEPTH_M = 2790 / (0.71 * 0.71);
+
+interface Volatiles { oceanMass: number; bulkIceMass: number; bulkGasMass: number }
+
+/**
+ * HOW MUCH OF A BODY'S WATER AND GAS IS SURFACE, AND HOW MUCH IS BULK.
+ *
+ * Universe Sandbox keeps ONE inventory per body. Its `Water` is every drop, ocean and mantle alike -
+ * the program has no separate ice material, it decides phase from temperature - and its gas depots
+ * are the whole body's gas, with the atmosphere's share stated on its own as `AtmosphereMass`
+ * (Jupiter: 1.9e27 kg of hydrogen and helium, an atmosphere of 3e20). Reading every drop as ocean and
+ * every gas as air lost the bulk of both: a moon 77% water arrived as rock and metal under an ocean,
+ * and a giant two-thirds hydrogen arrived with no makeup at all, leaving every exporter downstream to
+ * guess what it was - one guessed a water world.
+ *
+ * So: gas beyond the stated atmosphere is bulk - hydrogen and helium to `gas`, the rest (methane,
+ * ammonia, ...) to `ice` with the other volatiles; water up to a full-coverage ocean is the ocean and
+ * the remainder is `ice`; and a body with a real hydrogen envelope has no surface for an ocean at all.
+ */
+function splitVolatiles(
+  depots: Record<string, { Mass: number }>, massKg: number, atmosphereMass: number, radiusM: number
+): Volatiles {
+  let gasSum = 0;
+  for (const [name, d] of Object.entries(depots)) if (GAS_MAP[name]) gasSum += d.Mass;
+  const bulkShare = gasSum > atmosphereMass ? (gasSum - atmosphereMass) / gasSum : 0;
+  let bulkGasMass = 0;
+  let bulkIceMass = 0;
+  for (const [name, d] of Object.entries(depots)) {
+    if (!GAS_MAP[name]) continue;
+    if (name === 'Hydrogen' || name === 'Helium') bulkGasMass += d.Mass * bulkShare;
+    else bulkIceMass += d.Mass * bulkShare;
+  }
+  const water = depots['Water']?.Mass ?? 0;
+  // An envelope is any hydrogen and helium beyond the stated atmosphere: Neptune's is 6% of its mass,
+  // and it has no ocean to speak of. A rocky world's gas is all atmosphere, so its share here is zero.
+  const envelope = bulkGasMass > 0.01 * massKg;
+  const oceanCap = radiusM > 0 ? FULL_OCEAN_DEPTH_M * 1000 * 4 * Math.PI * radiusM * radiusM : 0;
+  const oceanMass = envelope ? 0 : Math.min(water, oceanCap);
+  bulkIceMass += water - oceanMass;
+  return { oceanMass, bulkIceMass, bulkGasMass };
+}
+
 function makeupFromDepots(
   depots: Record<string, { Mass: number }>,
-  massKg: number, atmosphereMass: number, waterMass: number,
+  massKg: number, atmosphereMass: number, volatiles: Volatiles,
   bodyName: string, assumptions: string[]
 ): import('../../types').Makeup | null {
   const acc: Record<string, number> = {};
   let mapped = 0;
   let unknown = 0;
   for (const [depotName, d] of Object.entries(depots)) {
-    if (depotName === 'Water') continue;                 // liquid water → hydrosphere
-    if (GAS_MAP[depotName]) continue;                    // gases → atmosphere
+    if (depotName === 'Water') continue;                 // split by splitVolatiles
+    if (GAS_MAP[depotName]) continue;                    // split by splitVolatiles
     const key = MAKEUP_MAP[depotName];
     if (!key) { unknown += d.Mass; continue; }
     acc[key] = (acc[key] ?? 0) + d.Mass;
     mapped += d.Mass;
   }
-  const interiorMass = Math.max(0, massKg - atmosphereMass - waterMass);
+  if (volatiles.bulkIceMass > 0) { acc.ice = (acc.ice ?? 0) + volatiles.bulkIceMass; mapped += volatiles.bulkIceMass; }
+  if (volatiles.bulkGasMass > 0) { acc.gas = (acc.gas ?? 0) + volatiles.bulkGasMass; mapped += volatiles.bulkGasMass; }
+  const interiorMass = Math.max(0, massKg - atmosphereMass - volatiles.oceanMass);
   if (mapped <= 0 || interiorMass <= 0 || mapped < 0.9 * interiorMass) return null; // let density inference take over
   const total = mapped;
   const makeup: import('../../types').Makeup = {};
