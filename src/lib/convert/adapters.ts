@@ -14,6 +14,7 @@ import { readZipMembers, decodeMember } from '$lib/vendor/import/shared/zip';
 import * as ubox from '$lib/vendor/import/ubox';
 import * as se from '$lib/vendor/import/spaceengine';
 import type { FormatId } from './formats';
+import { readSse4Doc, sse4ToSystem } from './sse4';
 
 export interface SourceSystem { name: string }
 export interface BodyPreview { name: string; mass: number }
@@ -117,8 +118,29 @@ export const sseAdapter: SourceAdapter = {
   }
 };
 
+// --- Star System Explorer 4 ------------------------------------------------------------------------
+// One system as SSE4's kernel resolved it (see sse4.ts). Like a V3 save it has been curated already,
+// so no mass slider.
+const text = (b: Uint8Array) => new TextDecoder('utf-8').decode(b);
+export const sse4Adapter: SourceAdapter = {
+  label: 'Star System Explorer 4',
+  massSlider: false,
+  recommendedMinMass: 0,
+  subtitle: (b) => { try { const v = readSse4Doc(text(b)).kernelVersion; return v ? `kernel ${v}` : ''; } catch { return ''; } },
+  systems: (b) => [{ name: (sse4ToSystem(text(b)).system.name as string) ?? 'Untitled system' }],
+  bodies: (b) => (sse4ToSystem(text(b)).system.nodes ?? [])
+    .filter((n) => n.kind === 'body')
+    .map((n) => ({ name: n.name, mass: (n as CelestialBody).massKg ?? 0 }))
+    .sort((x, y) => y.mass - x.mass),
+  convert: (b) => {
+    const r = sse4ToSystem(text(b));
+    return { system: r.system, counts: countNodes(r.system), assumptions: r.assumptions, skipped: r.skipped };
+  }
+};
+
 export const ADAPTERS: Record<FormatId, SourceAdapter> = {
   ubox: uboxAdapter,
   spaceengine: spaceengineAdapter,
-  sse: sseAdapter
+  sse: sseAdapter,
+  sse4: sse4Adapter
 };

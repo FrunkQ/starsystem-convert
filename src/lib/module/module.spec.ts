@@ -45,10 +45,13 @@ describe('the module surface', () => {
     expect(info.api).toBe(API_VERSION);
   });
 
-  it('lists three formats, each readable and writable, with an output for each', () => {
+  it('lists the formats: three both ways, and SSE4 read only (it opens the .json itself)', () => {
     const f = formats();
-    expect(f.map((x) => x.id).sort()).toEqual(['spaceengine', 'sse', 'ubox']);
-    for (const x of f) {
+    expect(f.map((x) => x.id).sort()).toEqual(['spaceengine', 'sse', 'sse4', 'ubox']);
+    const sse4 = f.find((x) => x.id === 'sse4')!;
+    expect(sse4.readable).toBe(true);
+    expect(sse4.writable).toBe(false);
+    for (const x of f.filter((y) => y.id !== 'sse4')) {
       expect(x.readable).toBe(true);
       expect(x.writable).toBe(true);
       expect(x.output?.extension).toMatch(/^\./);

@@ -37,6 +37,13 @@ from), so after a conversion the page can say what SSE4 will make of the file: w
 authored, what it works out again and how far apart the answers are, and which fields it keeps but does
 not use yet. It loads only when asked.
 
+The other way, SSE4 hands over one system as its kernel resolved it (`sse.system-export/1`, a
+`.sse4.json`), and this tool reads it like any other format, so an SSE4 system can go to Universe
+Sandbox, SpaceEngine or Star System Explorer 3. That direction is best effort: a V3 system that went
+to SSE4 comes back nearly as it left, because SSE4 kept its V3 fields, but SSE4's history, flows,
+light, weather, surfaces and record have nowhere to go, and every SSE4 value without a V3 field is
+listed as left behind, with the reason.
+
 ## As a module, for other sites
 
 The same code is published as a browser module that other StarSystemX sites load instead of keeping

@@ -1,0 +1,548 @@
+{
+ "format": "sse.system-export/1",
+ "kernel": {
+  "kernel_version": "0.1.0"
+ },
+ "resolved": {
+  "evidence": {
+   "u:kestrel/sys:@1": {
+    "system.age": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "system.position_map_units": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.age_Gyr": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.epochT0": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.id": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.name": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.node.id": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.node.isNameUserDefined": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.node.name": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.seed": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.tags": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    }
+   },
+   "u:kestrel/sys:@1/body:@1": {
+    "body.mass": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "body.radius": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "star.effective_temperature": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.classes": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.id": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.kind": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.name": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.roleHint": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    }
+   },
+   "u:kestrel/sys:@1/body:@2": {
+    "body.axial_tilt": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "body.mass": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "body.oceans": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "body.radius": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "body.rotation_period": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "body.surface_pressure": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "body.surface_water_oceans": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.epoch_v3_ms": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.host": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.inclination": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "parent": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.atmosphere": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.description": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.gmNotes": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.hydrosphere": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.id": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.kind": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.makeup": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.name": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.roleHint": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.tags": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    }
+   },
+   "u:kestrel/sys:@1/body:@3": {
+    "body.mass": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "body.radius": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.epoch_v3_ms": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.host": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.inclination": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "parent": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.anomalies": {
+     "by": "adopt.v3",
+     "evidence": "authored-impossible"
+    },
+    "v3.id": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.kind": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.name": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.overrides": {
+     "by": "adopt.v3",
+     "evidence": "authored-impossible"
+    },
+    "v3.roleHint": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    }
+   },
+   "u:kestrel/sys:@1/craft:@1": {
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.epoch_v3_ms": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.host": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.inclination": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "parent": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.crew": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.id": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.kind": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.name": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.physical_parameters": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    },
+    "v3.roleHint": {
+     "by": "adopt.v3",
+     "evidence": "authored"
+    }
+   }
+  },
+  "facts": {
+   "u:kestrel/sys:@1": {
+    "system.age": 144218232000000000,
+    "system.position_map_units": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "v3.age_Gyr": 4.57,
+    "v3.epochT0": 0,
+    "v3.id": "sys-sol",
+    "v3.name": "Sol",
+    "v3.node.id": "sn-sol",
+    "v3.node.isNameUserDefined": true,
+    "v3.node.name": "Sol",
+    "v3.seed": "sol-seed",
+    "v3.tags": [
+     {
+      "key": "home",
+      "origin": "manual"
+     }
+    ]
+   },
+   "u:kestrel/sys:@1/body:@1": {
+    "body.mass": 1.98847e+30,
+    "body.radius": 695700000,
+    "star.effective_temperature": 5772,
+    "v3.classes": [
+     "star/G2V"
+    ],
+    "v3.id": "sun",
+    "v3.kind": "body",
+    "v3.name": "Sun",
+    "v3.roleHint": "star"
+   },
+   "u:kestrel/sys:@1/body:@2": {
+    "body.axial_tilt": 0.40910517666747087,
+    "body.mass": 5.9722e+24,
+    "body.oceans": true,
+    "body.radius": 6371000,
+    "body.rotation_period": 86164.2,
+    "body.surface_pressure": 101299.99999999999,
+    "body.surface_water_oceans": 1.0004446579822788,
+    "orbit.argument_of_periapsis": 1.7959438003021653,
+    "orbit.ascending_node": 0,
+    "orbit.eccentricity": 0.0167,
+    "orbit.epoch_v3_ms": 0,
+    "orbit.host": "u:kestrel/sys:@1/body:@1",
+    "orbit.inclination": 0,
+    "orbit.mean_anomaly_at_epoch": 0,
+    "orbit.semi_major_axis": 149597870700,
+    "parent": "u:kestrel/sys:@1/body:@1",
+    "v3.atmosphere": {
+     "composition": {
+      "N2": 0.78,
+      "O2": 0.21
+     },
+     "main": "N2",
+     "name": "Air",
+     "pressure_bar": 1.013
+    },
+    "v3.description": "Blue and green.",
+    "v3.gmNotes": "the cult hides here",
+    "v3.hydrosphere": {
+     "composition": "water",
+     "coverage": 0.71,
+     "depth_m": 3688
+    },
+    "v3.id": "earth",
+    "v3.kind": "body",
+    "v3.makeup": {
+     "metal": 0.32,
+     "rock": 0.68
+    },
+    "v3.name": "Earth",
+    "v3.roleHint": "planet",
+    "v3.tags": [
+     {
+      "key": "capital",
+      "origin": "manual",
+      "secret": true
+     },
+     {
+      "key": "ocean",
+      "origin": "physics",
+      "override": true
+     }
+    ]
+   },
+   "u:kestrel/sys:@1/body:@3": {
+    "body.mass": 7.346e+22,
+    "body.radius": 1737400,
+    "orbit.argument_of_periapsis": 0,
+    "orbit.ascending_node": 0,
+    "orbit.eccentricity": 0.0549,
+    "orbit.epoch_v3_ms": 0,
+    "orbit.host": "u:kestrel/sys:@1/body:@2",
+    "orbit.inclination": 0.08979719001510825,
+    "orbit.mean_anomaly_at_epoch": 0,
+    "orbit.semi_major_axis": 384400000.029921,
+    "parent": "u:kestrel/sys:@1/body:@2",
+    "v3.anomalies": [
+     "density set below physics"
+    ],
+    "v3.id": "moon",
+    "v3.kind": "body",
+    "v3.name": "Moon",
+    "v3.overrides": {
+     "densityGcm3": 3
+    },
+    "v3.roleHint": "moon"
+   },
+   "u:kestrel/sys:@1/craft:@1": {
+    "orbit.argument_of_periapsis": 0,
+    "orbit.ascending_node": 0,
+    "orbit.eccentricity": 0.0005,
+    "orbit.epoch_v3_ms": 0,
+    "orbit.host": "u:kestrel/sys:@1/body:@2",
+    "orbit.inclination": 0.9005898940290741,
+    "orbit.mean_anomaly_at_epoch": 0,
+    "orbit.semi_major_axis": 6731904.181500001,
+    "parent": "u:kestrel/sys:@1/body:@2",
+    "v3.crew": {
+     "current": 7
+    },
+    "v3.id": "iss",
+    "v3.kind": "construct",
+    "v3.name": "Station",
+    "v3.physical_parameters": {
+     "massKg": 420000
+    },
+    "v3.roleHint": "construct"
+   }
+  },
+  "refused": [],
+  "source": "v3",
+  "spec": {
+   "age_myr": 4570.0,
+   "birth_year": -4570000000,
+   "debris": null,
+   "name": "u:kestrel/sys:@1",
+   "planets": [
+    {
+     "a_au": 1.0,
+     "address": "u:kestrel/sys:@1/body:@2",
+     "e": 0.0167,
+     "i_deg": 0.0,
+     "mass_me": 1.0,
+     "mean_longitude_deg": 102.9,
+     "name": "u:kestrel/sys:@1/body:@2",
+     "node_deg": 0.0,
+     "oceans": true,
+     "varpi_deg": 102.9
+    }
+   ],
+   "sources": "facts of the open universe",
+   "star_address": "u:kestrel/sys:@1/body:@1",
+   "star_mass": 1.0,
+   "system": "u:kestrel/sys:@1",
+   "z": 0.0142
+  },
+  "surfaces": [
+   {
+    "address": "u:kestrel/sys:@1/body:@2",
+    "dial": [],
+    "events": [],
+    "gravity_m_s2": 9.842202465239273,
+    "kind": "solid",
+    "label": "Earth",
+    "locked": false,
+    "reference_radius_m": 6363907.903607657,
+    "regime_label": "Mobile lid (plate tectonics)",
+    "regime_now": "mobile-lid",
+    "source": "Korenaga 2013, Annu. Rev. Earth Planet. Sci. 41, 117. doi:10.1146/annurev-earth-050212-124208",
+    "speculative": false,
+    "t_surface_now_k": 284.58577294327233,
+    "tidal_w_m2": 8.451177527559859e-10,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       0.19476010644140423,
+       0.03925041880939054
+      ],
+      "regime": "mobile-lid",
+      "to_gyr": 4.57
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:@1/body:@3",
+    "dial": [],
+    "events": [],
+    "gravity_m_s2": 1.6278877361161392,
+    "kind": "solid",
+    "label": "Moon",
+    "locked": true,
+    "reference_radius_m": 1735465.953810696,
+    "regime_label": "Stagnant lid",
+    "regime_now": "stagnant-lid",
+    "source": "Solomatov and Moresi 1996, J. Geophys. Res. 101, 4737. doi:10.1029/95JE03361",
+    "speculative": false,
+    "t_surface_now_k": 254.5857729432723,
+    "tidal_w_m2": 7.770742971114764e-05,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       0.032290780520274856,
+       0.006569676505447788
+      ],
+      "regime": "stagnant-lid",
+      "to_gyr": 4.57
+     }
+    ]
+   }
+  ],
+  "system": "u:kestrel/sys:@1",
+  "tiles": [],
+  "type": "system_resolved"
+ }
+}

@@ -1,0 +1,1488 @@
+{
+ "format": "sse.system-export/1",
+ "kernel": {
+  "kernel_version": "0.1.0"
+ },
+ "resolved": {
+  "evidence": {
+   "u:kestrel/sys:40": {
+    "star.metallicity_z": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "system.age": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "system.birth_year": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "system.pipeline": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:0": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:1": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:10": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:2": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:3": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:4": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:5": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:6": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:7": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:8": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.light_source": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.effective_temperature": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.luminosity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/body:9": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.oceans": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.solid_radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.argument_of_periapsis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.ascending_node": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.inclination": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.mean_anomaly_at_epoch": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/star:0": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.light_source": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.effective_temperature": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.luminosity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.phase": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/star:1": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.light_source": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.effective_temperature": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.luminosity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.phase": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   },
+   "u:kestrel/sys:40/star:2": {
+    "body.kind": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.light_source": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.mass": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "body.radius": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.eccentricity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.host": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.semi_major_axis": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.stability": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "orbit.stability_why": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "parent": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.effective_temperature": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.luminosity": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    },
+    "star.phase": {
+     "by": "adopt.formation",
+     "evidence": "resolved"
+    }
+   }
+  },
+  "facts": {
+   "u:kestrel/sys:40": {
+    "star.metallicity_z": 0.019999916940109087,
+    "system.age": 2.182170102968716e+16,
+    "system.birth_year": 13108512021,
+    "system.pipeline": "formation-pipeline-v1"
+   },
+   "u:kestrel/sys:40/body:0": {
+    "body.kind": "planet",
+    "body.mass": 6.013181228038919e+22,
+    "body.oceans": false,
+    "body.radius": 1838163.3904608486,
+    "body.solid_radius": 1838163.3904608486,
+    "orbit.argument_of_periapsis": 0.24139829556625994,
+    "orbit.ascending_node": 4.71944368284117,
+    "orbit.eccentricity": 0.003525306010257535,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.010172507791606106,
+    "orbit.mean_anomaly_at_epoch": 0.5839292480012325,
+    "orbit.semi_major_axis": 39256608624.13056,
+    "parent": "u:kestrel/sys:40/star:0"
+   },
+   "u:kestrel/sys:40/body:1": {
+    "body.kind": "planet",
+    "body.mass": 3.051787402919736e+23,
+    "body.oceans": false,
+    "body.radius": 2851299.462038956,
+    "body.solid_radius": 2851299.462038956,
+    "orbit.argument_of_periapsis": 2.5859906914805935,
+    "orbit.ascending_node": 2.9423244933585893,
+    "orbit.eccentricity": 0.0027388328975575522,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.015347374597714488,
+    "orbit.mean_anomaly_at_epoch": -5.040396110823053,
+    "orbit.semi_major_axis": 58823437622.1584,
+    "parent": "u:kestrel/sys:40/star:0"
+   },
+   "u:kestrel/sys:40/body:10": {
+    "body.kind": "planet",
+    "body.mass": 2.483463333697065e+25,
+    "body.oceans": true,
+    "body.radius": 14764861.279033223,
+    "body.solid_radius": 11544549.110715931,
+    "orbit.argument_of_periapsis": -3.291233720970577,
+    "orbit.ascending_node": 5.215841550687964,
+    "orbit.eccentricity": 0.0037233743828264092,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.020514500898271233,
+    "orbit.mean_anomaly_at_epoch": -1.047680095409413,
+    "orbit.semi_major_axis": 1903964094858.3547,
+    "parent": "u:kestrel/sys:40/star:0"
+   },
+   "u:kestrel/sys:40/body:2": {
+    "body.kind": "planet",
+    "body.mass": 2.915302247173368e+23,
+    "body.oceans": false,
+    "body.radius": 2816259.087420178,
+    "body.solid_radius": 2816259.087420178,
+    "orbit.argument_of_periapsis": -1.2621064135830091,
+    "orbit.ascending_node": 1.7206669510085566,
+    "orbit.eccentricity": 0.0032643613340953854,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.018599346325252262,
+    "orbit.mean_anomaly_at_epoch": 1.7906297269689284,
+    "orbit.semi_major_axis": 94974924313.5213,
+    "parent": "u:kestrel/sys:40/star:0"
+   },
+   "u:kestrel/sys:40/body:3": {
+    "body.kind": "planet",
+    "body.mass": 7.072989257777508e+23,
+    "body.oceans": false,
+    "body.radius": 3578494.022950589,
+    "body.solid_radius": 3578494.022950589,
+    "orbit.argument_of_periapsis": -0.46638350191367434,
+    "orbit.ascending_node": 1.144471434333564,
+    "orbit.eccentricity": 0.00783466398219357,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.03832360483257992,
+    "orbit.mean_anomaly_at_epoch": 3.70702477798747,
+    "orbit.semi_major_axis": 150763294765.88385,
+    "parent": "u:kestrel/sys:40/star:0"
+   },
+   "u:kestrel/sys:40/body:4": {
+    "body.kind": "planet",
+    "body.mass": 2.3254573083534e+23,
+    "body.oceans": false,
+    "body.radius": 2649340.2507235706,
+    "body.solid_radius": 2649340.2507235706,
+    "orbit.argument_of_periapsis": 1.6178816368458102,
+    "orbit.ascending_node": 4.45153588922474,
+    "orbit.eccentricity": 0.003193246616383689,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.010900910802068524,
+    "orbit.mean_anomaly_at_epoch": -3.502635309953114,
+    "orbit.semi_major_axis": 200904451601.03094,
+    "parent": "u:kestrel/sys:40/star:0"
+   },
+   "u:kestrel/sys:40/body:5": {
+    "body.kind": "planet",
+    "body.mass": 4.772249204334084e+25,
+    "body.oceans": true,
+    "body.radius": 20412055.463879712,
+    "body.solid_radius": 13866271.589469027,
+    "orbit.argument_of_periapsis": 1.54339352995643,
+    "orbit.ascending_node": 0.26372074321039063,
+    "orbit.eccentricity": 0.006931670156281082,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.02742993630089467,
+    "orbit.mean_anomaly_at_epoch": 3.7633909626905693,
+    "orbit.semi_major_axis": 272366470851.6983,
+    "parent": "u:kestrel/sys:40/star:0"
+   },
+   "u:kestrel/sys:40/body:6": {
+    "body.kind": "planet",
+    "body.mass": 5.413712335929144e+23,
+    "body.oceans": true,
+    "body.radius": 3415451.1069851196,
+    "body.solid_radius": 3365680.518641985,
+    "orbit.argument_of_periapsis": 4.4242157526460115,
+    "orbit.ascending_node": 0.22168381498724607,
+    "orbit.eccentricity": 0.009863861813291363,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.020651721167282124,
+    "orbit.mean_anomaly_at_epoch": -3.1467469365714242,
+    "orbit.semi_major_axis": 356901042277.8183,
+    "parent": "u:kestrel/sys:40/star:0"
+   },
+   "u:kestrel/sys:40/body:7": {
+    "body.kind": "planet",
+    "body.mass": 3.3670076647227694e+24,
+    "body.oceans": true,
+    "body.radius": 7597077.006506623,
+    "body.solid_radius": 6854152.204535545,
+    "orbit.argument_of_periapsis": -3.3668969044534673,
+    "orbit.ascending_node": 5.258841331586721,
+    "orbit.eccentricity": 0.007540288155402706,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.03032603234969796,
+    "orbit.mean_anomaly_at_epoch": 0.5529594483493755,
+    "orbit.semi_major_axis": 472502637653.57227,
+    "parent": "u:kestrel/sys:40/star:0"
+   },
+   "u:kestrel/sys:40/body:8": {
+    "body.kind": "planet",
+    "body.light_source": "cooling",
+    "body.mass": 9.423540427808052e+25,
+    "body.oceans": true,
+    "body.radius": 25535497.734540194,
+    "body.solid_radius": 16275472.38541399,
+    "orbit.argument_of_periapsis": 2.7234543425989455,
+    "orbit.ascending_node": 2.5944423763799236,
+    "orbit.eccentricity": 0.007677369002406647,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.014981274811962448,
+    "orbit.mean_anomaly_at_epoch": -1.608577067880933,
+    "orbit.semi_major_axis": 750051184069.0295,
+    "parent": "u:kestrel/sys:40/star:0",
+    "star.effective_temperature": 27.301636835176122,
+    "star.luminosity": 258146374041726.28
+   },
+   "u:kestrel/sys:40/body:9": {
+    "body.kind": "planet",
+    "body.mass": 4.520766555822957e+24,
+    "body.oceans": true,
+    "body.radius": 8102775.793442691,
+    "body.solid_radius": 7313569.964047881,
+    "orbit.argument_of_periapsis": 2.4426899257260515,
+    "orbit.ascending_node": 2.821302075666663,
+    "orbit.eccentricity": 0.005773055806524564,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.inclination": 0.03609431054942968,
+    "orbit.mean_anomaly_at_epoch": -0.5132257162606527,
+    "orbit.semi_major_axis": 1165130074040.1235,
+    "parent": "u:kestrel/sys:40/star:0"
+   },
+   "u:kestrel/sys:40/star:0": {
+    "body.kind": "star",
+    "body.light_source": "fusion",
+    "body.mass": 1.0301749206967834e+30,
+    "body.radius": 331179144.8619617,
+    "parent": "u:kestrel/sys:40",
+    "star.effective_temperature": 3784.5968005768486,
+    "star.luminosity": 1.6033453075436524e+25,
+    "star.phase": "main sequence"
+   },
+   "u:kestrel/sys:40/star:1": {
+    "body.kind": "star",
+    "body.light_source": "fusion",
+    "body.mass": 7.644112581454802e+29,
+    "body.radius": 251783080.73011118,
+    "orbit.eccentricity": 0.47633855398025143,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.semi_major_axis": 348288724221439.44,
+    "parent": "u:kestrel/sys:40",
+    "star.effective_temperature": 3648.0253149741193,
+    "star.luminosity": 8.000315101581018e+24,
+    "star.phase": "main sequence"
+   },
+   "u:kestrel/sys:40/star:2": {
+    "body.kind": "star",
+    "body.light_source": "fusion",
+    "body.mass": 9.896339135317759e+29,
+    "body.radius": 317772710.8927528,
+    "orbit.eccentricity": 0.5025428430600914,
+    "orbit.host": "u:kestrel/sys:40/star:0",
+    "orbit.semi_major_axis": 1799672250196472.5,
+    "orbit.stability": "stable",
+    "orbit.stability_why": "outer orbit 5.2 times the inner one; stable: it needs more than 4.5 (Mardling and Aarseth 2001)",
+    "parent": "u:kestrel/sys:40",
+    "star.effective_temperature": 3756.3359660011033,
+    "star.luminosity": 1.4325623886515656e+25,
+    "star.phase": "main sequence"
+   }
+  },
+  "refused": [],
+  "source": "formation",
+  "spec": {
+   "age_myr": 691.4879784802127,
+   "birth_year": 13108512021,
+   "debris": {
+    "a_in_au": 1.1415188134818572,
+    "a_out_au": 1.6115559719743866,
+    "address": "u:kestrel/sys:40/cloud:0",
+    "mass_me": 0.0013391088119999999,
+    "name": "debris-belt"
+   },
+   "name": "u:kestrel/sys:40",
+   "planets": [
+    {
+     "a_au": 0.26241422047279556,
+     "address": "u:kestrel/sys:40/body:0",
+     "e": 0.003525306010257535,
+     "i_deg": 0.5828417635229755,
+     "mass_me": 0.010068619985999998,
+     "mean_longitude_deg": 317.6919896387938,
+     "name": "u:kestrel/sys:40/body:0",
+     "node_deg": 270.4042046764769,
+     "oceans": false,
+     "varpi_deg": 284.23530819407523
+    },
+    {
+     "a_au": 0.39321039361664123,
+     "address": "u:kestrel/sys:40/body:1",
+     "e": 0.0027388328975575522,
+     "i_deg": 0.8793397910553298,
+     "mass_me": 0.051099886187999995,
+     "mean_longitude_deg": 27.95570368505547,
+     "name": "u:kestrel/sys:40/body:1",
+     "node_deg": 168.58277542741538,
+     "oceans": false,
+     "varpi_deg": 316.74912790937077
+    },
+    {
+     "a_au": 0.6348681560045848,
+     "address": "u:kestrel/sys:40/body:2",
+     "e": 0.0032643613340953854,
+     "i_deg": 1.0656640461391116,
+     "mass_me": 0.048814544843999996,
+     "mean_longitude_deg": 128.86910947171722,
+     "name": "u:kestrel/sys:40/body:2",
+     "node_deg": 98.58695424043388,
+     "oceans": false,
+     "varpi_deg": 26.2735834457347
+    },
+    {
+     "a_au": 1.0077903787027889,
+     "address": "u:kestrel/sys:40/body:3",
+     "e": 0.00783466398219357,
+     "i_deg": 2.1957808126339953,
+     "mass_me": 0.118431888714,
+     "mean_longitude_deg": 251.2484509955149,
+     "name": "u:kestrel/sys:40/body:3",
+     "node_deg": 65.57338296059696,
+     "oceans": false,
+     "varpi_deg": 38.851576666411866
+    },
+    {
+     "a_au": 1.3429633099786555,
+     "address": "u:kestrel/sys:40/body:4",
+     "e": 0.003193246616383689,
+     "i_deg": 0.6245761818070955,
+     "mass_me": 0.0389380347,
+     "mean_longitude_deg": 147.06578791276542,
+     "name": "u:kestrel/sys:40/body:4",
+     "node_deg": 255.05421880359353,
+     "oceans": false,
+     "varpi_deg": 347.7520083465758
+    },
+    {
+     "a_au": 1.8206574035929664,
+     "address": "u:kestrel/sys:40/body:5",
+     "e": 0.006931670156281082,
+     "i_deg": 1.5716195823539538,
+     "mass_me": 7.990772586875999,
+     "mean_longitude_deg": 319.16643977015565,
+     "name": "u:kestrel/sys:40/body:5",
+     "node_deg": 15.110085556008745,
+     "oceans": true,
+     "varpi_deg": 103.54002095031018
+    },
+    {
+     "a_au": 2.38573611113449,
+     "address": "u:kestrel/sys:40/body:6",
+     "e": 0.009863861813291363,
+     "i_deg": 1.1832564625662516,
+     "mass_me": 0.090648543852,
+     "mean_longitude_deg": 85.89511860577605,
+     "name": "u:kestrel/sys:40/body:6",
+     "node_deg": 12.701546985128186,
+     "oceans": true,
+     "varpi_deg": 266.1904372670396
+    },
+    {
+     "a_au": 3.1584850468969425,
+     "address": "u:kestrel/sys:40/body:7",
+     "e": 0.007540288155402706,
+     "i_deg": 1.7375536630148962,
+     "mass_me": 0.5637801253679999,
+     "mean_longitude_deg": 140.08267338033318,
+     "name": "u:kestrel/sys:40/body:7",
+     "node_deg": 301.309413428877,
+     "oceans": true,
+     "varpi_deg": 108.40043074803172
+    },
+    {
+     "a_au": 5.013782486070034,
+     "address": "u:kestrel/sys:40/body:8",
+     "e": 0.007677369002406647,
+     "i_deg": 0.8583638184510942,
+     "mass_me": 15.7790101266,
+     "mean_longitude_deg": 212.52836087285078,
+     "name": "u:kestrel/sys:40/body:8",
+     "node_deg": 148.65059835646144,
+     "oceans": true,
+     "varpi_deg": 304.6930378839572
+    },
+    {
+     "a_au": 7.78841348869629,
+     "address": "u:kestrel/sys:40/body:9",
+     "e": 0.005773055806524564,
+     "i_deg": 2.0680516589168443,
+     "mass_me": 0.756968379462,
+     "mean_longitude_deg": 272.1988575911118,
+     "name": "u:kestrel/sys:40/body:9",
+     "node_deg": 161.64870166719862,
+     "oceans": true,
+     "varpi_deg": 301.6045250704259
+    },
+    {
+     "a_au": 12.727213869751655,
+     "address": "u:kestrel/sys:40/body:10",
+     "e": 0.0037233743828264092,
+     "i_deg": 1.1753943202882777,
+     "mass_me": 4.158372682925999,
+     "mean_longitude_deg": 50.2442581138165,
+     "name": "u:kestrel/sys:40/body:10",
+     "node_deg": 298.84570746339097,
+     "oceans": true,
+     "varpi_deg": 110.27190586063928
+    }
+   ],
+   "sources": "generated by formation-pipeline-v1 (Modern block) from manifest 1d51fa0f7d56f04200ea3c21fad3c9ebc56b16b9b13f7bc63da2db9e117b6827",
+   "star_address": "u:kestrel/sys:40/star:0",
+   "star_mass": 0.5180741578685036,
+   "system": "u:kestrel/sys:40",
+   "z": 0.019999916940109087
+  },
+  "surfaces": [
+   {
+    "address": "u:kestrel/sys:40/body:0",
+    "dial": [],
+    "events": [],
+    "gravity_m_s2": 1.1904447118671724,
+    "kind": "solid",
+    "label": "u:kestrel/sys:40/body:0",
+    "locked": true,
+    "reference_radius_m": 1836117.176059652,
+    "regime_label": "Stagnant lid",
+    "regime_now": "stagnant-lid",
+    "source": "Solomatov and Moresi 1996, J. Geophys. Res. 101, 4737. doi:10.1029/95JE03361",
+    "speculative": false,
+    "t_surface_now_k": 225.04829330734518,
+    "tidal_w_m2": 3.980901074877e-09,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       0.022878814065809206,
+       0.015878436110937727
+      ],
+      "regime": "stagnant-lid",
+      "to_gyr": 0.6899497623279753
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:40/body:1",
+    "dial": [],
+    "events": [],
+    "gravity_m_s2": 2.5109714424253253,
+    "kind": "solid",
+    "label": "u:kestrel/sys:40/body:1",
+    "locked": false,
+    "reference_radius_m": 2848125.4405936236,
+    "regime_label": "Stagnant lid",
+    "regime_now": "stagnant-lid",
+    "source": "Solomatov and Moresi 1996, J. Geophys. Res. 101, 4737. doi:10.1029/95JE03361",
+    "speculative": false,
+    "t_surface_now_k": 183.84715485593154,
+    "tidal_w_m2": 4.319294884786977e-10,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       0.04825549029781799,
+       0.03349044499148354
+      ],
+      "regime": "stagnant-lid",
+      "to_gyr": 0.6899497623279753
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:40/body:2",
+    "dial": [],
+    "events": [],
+    "gravity_m_s2": 2.458733943938293,
+    "kind": "solid",
+    "label": "u:kestrel/sys:40/body:2",
+    "locked": false,
+    "reference_radius_m": 2813124.0723654306,
+    "regime_label": "Stagnant lid",
+    "regime_now": "stagnant-lid",
+    "source": "Solomatov and Moresi 1996, J. Geophys. Res. 101, 4737. doi:10.1029/95JE03361",
+    "speculative": false,
+    "t_surface_now_k": 174.68637582034043,
+    "tidal_w_m2": 1.6267783675047172e-11,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       0.04725180564159122,
+       0.032793864114047194
+      ],
+      "regime": "stagnant-lid",
+      "to_gyr": 0.6899497623279753
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:40/body:3",
+    "dial": [],
+    "events": [
+     {
+      "cause": "Stagnant lid: one global plate: too small, too cool or too quiet for the lid to break (the magma ocean solidified).",
+      "from": "magma-ocean",
+      "subject": "u:kestrel/sys:40/body:3",
+      "t_gyr": 0.004,
+      "to": "stagnant-lid"
+     }
+    ],
+    "gravity_m_s2": 3.6946692655904223,
+    "kind": "solid",
+    "label": "u:kestrel/sys:40/body:3",
+    "locked": false,
+    "reference_radius_m": 3574510.500026372,
+    "regime_label": "Stagnant lid",
+    "regime_now": "stagnant-lid",
+    "source": "Solomatov and Moresi 1996, J. Geophys. Res. 101, 4737. doi:10.1029/95JE03361",
+    "speculative": false,
+    "t_surface_now_k": 144.83765431889597,
+    "tidal_w_m2": 6.00766721790704e-12,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       0.0710022621212448,
+       0.07084149127397056
+      ],
+      "regime": "magma-ocean",
+      "to_gyr": 0.004
+     },
+     {
+      "from_gyr": 0.004,
+      "heat_flow_w_m2": [
+       0.07084149127397056,
+       0.04927723933322036
+      ],
+      "regime": "stagnant-lid",
+      "to_gyr": 0.6899497623279753
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:40/body:4",
+    "dial": [],
+    "events": [],
+    "gravity_m_s2": 2.216185236274615,
+    "kind": "solid",
+    "label": "u:kestrel/sys:40/body:4",
+    "locked": false,
+    "reference_radius_m": 2646391.0470766947,
+    "regime_label": "Stagnant lid",
+    "regime_now": "stagnant-lid",
+    "source": "Solomatov and Moresi 1996, J. Geophys. Res. 101, 4737. doi:10.1029/95JE03361",
+    "speculative": false,
+    "t_surface_now_k": 129.75190895883256,
+    "tidal_w_m2": 4.70151378786859e-14,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       0.04258922863872567,
+       0.04258922863872567
+      ],
+      "regime": "stagnant-lid",
+      "to_gyr": 0.0
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:40/body:5",
+    "dial": [],
+    "events": [],
+    "gravity_m_s2": 16.60262931497209,
+    "kind": "cloud-deck",
+    "label": "u:kestrel/sys:40/body:5",
+    "locked": false,
+    "reference_radius_m": 13850835.875340175,
+    "regime_label": "Cloud deck (no solid surface)",
+    "regime_now": "cloud-deck",
+    "source": "surface design section 6; band count from rotation (Rhines scale)",
+    "speculative": false,
+    "t_surface_now_k": 115.67205605964247,
+    "tidal_w_m2": 3.2411105441572615e-12,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       3.2411105441572615e-12,
+       3.2411105441572615e-12
+      ],
+      "regime": "cloud-deck",
+      "to_gyr": 0.0
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:40/body:6",
+    "dial": [],
+    "events": [],
+    "gravity_m_s2": 3.1968522081084068,
+    "kind": "solid",
+    "label": "u:kestrel/sys:40/body:6",
+    "locked": false,
+    "reference_radius_m": 3361933.8963434384,
+    "regime_label": "Stagnant lid",
+    "regime_now": "stagnant-lid",
+    "source": "Solomatov and Moresi 1996, J. Geophys. Res. 101, 4737. doi:10.1029/95JE03361",
+    "speculative": false,
+    "t_surface_now_k": 104.63770287988443,
+    "tidal_w_m2": 1.2359057354829315e-14,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       0.06212796595999554,
+       0.0431182691412714
+      ],
+      "regime": "stagnant-lid",
+      "to_gyr": 0.6899497623279753
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:40/body:7",
+    "dial": [],
+    "events": [
+     {
+      "cause": "Ice shell tectonics: a water-rich world too cold for open sea: the ice shell is the surface (the magma ocean solidified).",
+      "from": "magma-ocean",
+      "subject": "u:kestrel/sys:40/body:7",
+      "t_gyr": 0.004,
+      "to": "ice-shell"
+     }
+    ],
+    "gravity_m_s2": 4.794129689774349,
+    "kind": "ice-shell",
+    "label": "u:kestrel/sys:40/body:7",
+    "locked": false,
+    "reference_radius_m": 6846522.270753979,
+    "regime_label": "Ice shell tectonics",
+    "regime_now": "ice-shell",
+    "source": "Kattenhorn and Prockter 2014, Nature Geosci. 7, 762. doi:10.1038/ngeo2245",
+    "speculative": false,
+    "t_surface_now_k": 94.86793903884191,
+    "tidal_w_m2": 7.436820150003341e-15,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       0.11436515994116006,
+       0.11410620222467842
+      ],
+      "regime": "magma-ocean",
+      "to_gyr": 0.004
+     },
+     {
+      "from_gyr": 0.004,
+      "heat_flow_w_m2": [
+       0.11410620222467842,
+       0.07937210997544064
+      ],
+      "regime": "ice-shell",
+      "to_gyr": 0.6899497623279753
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:40/body:8",
+    "dial": [],
+    "events": [],
+    "gravity_m_s2": 23.796881867030677,
+    "kind": "cloud-deck",
+    "label": "u:kestrel/sys:40/body:8",
+    "locked": false,
+    "reference_radius_m": 16257354.787079621,
+    "regime_label": "Cloud deck (no solid surface)",
+    "regime_now": "cloud-deck",
+    "source": "surface design section 6; band count from rotation (Rhines scale)",
+    "speculative": false,
+    "t_surface_now_k": 81.48573650465669,
+    "tidal_w_m2": 3.2258559335301362e-15,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       3.2258559335301362e-15,
+       3.2258559335301362e-15
+      ],
+      "regime": "cloud-deck",
+      "to_gyr": 0.6899497623279753
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:40/body:9",
+    "dial": [],
+    "events": [
+     {
+      "cause": "Ice shell tectonics: a water-rich world too cold for open sea: the ice shell is the surface (the magma ocean solidified).",
+      "from": "magma-ocean",
+      "subject": "u:kestrel/sys:40/body:9",
+      "t_gyr": 0.004,
+      "to": "ice-shell"
+     }
+    ],
+    "gravity_m_s2": 5.653617237511357,
+    "kind": "ice-shell",
+    "label": "u:kestrel/sys:40/body:9",
+    "locked": false,
+    "reference_radius_m": 7305428.613685745,
+    "regime_label": "Ice shell tectonics",
+    "regime_now": "ice-shell",
+    "source": "Kattenhorn and Prockter 2014, Nature Geosci. 7, 762. doi:10.1038/ngeo2245",
+    "speculative": false,
+    "t_surface_now_k": 71.30908285731144,
+    "tidal_w_m2": 6.083785069533756e-18,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       0.134868175030999,
+       0.13456279221467587
+      ],
+      "regime": "magma-ocean",
+      "to_gyr": 0.004
+     },
+     {
+      "from_gyr": 0.004,
+      "heat_flow_w_m2": [
+       0.13456279221467587,
+       0.09360168451873489
+      ],
+      "regime": "ice-shell",
+      "to_gyr": 0.6899497623279753
+     }
+    ]
+   },
+   {
+    "address": "u:kestrel/sys:40/body:10",
+    "dial": [],
+    "events": [],
+    "gravity_m_s2": 12.464560300208168,
+    "kind": "cloud-deck",
+    "label": "u:kestrel/sys:40/body:10",
+    "locked": false,
+    "reference_radius_m": 11531697.90131406,
+    "regime_label": "Cloud deck (no solid surface)",
+    "regime_now": "cloud-deck",
+    "source": "surface design section 6; band count from rotation (Rhines scale)",
+    "speculative": false,
+    "t_surface_now_k": 62.3150224917211,
+    "tidal_w_m2": 2.502362059762959e-19,
+    "timeline": [
+     {
+      "from_gyr": 0.0,
+      "heat_flow_w_m2": [
+       2.502362059762959e-19,
+       2.502362059762959e-19
+      ],
+      "regime": "cloud-deck",
+      "to_gyr": 0.6899497623279753
+     }
+    ]
+   }
+  ],
+  "system": "u:kestrel/sys:40",
+  "tiles": [],
+  "type": "system_resolved"
+ }
+}
