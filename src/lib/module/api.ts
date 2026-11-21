@@ -8,7 +8,7 @@
 /** Bumped only when a caller would have to change. Additions keep the number. */
 export const API_VERSION = 1;
 
-export type FormatId = 'ubox' | 'spaceengine' | 'sse';
+export type FormatId = 'ubox' | 'spaceengine' | 'sse' | 'sse4';
 
 export interface FormatDescriptor {
   id: FormatId;

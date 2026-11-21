@@ -127,7 +127,7 @@
       adapter = open(f.name, raw);
     } catch (e) {
       problem = e instanceof ConvertError && e.code === 'unknown_format'
-        ? `${f.name} is not a format this tool reads. Drop a .ubox, .sc, .pak, .json or .sse.zip.`
+        ? `${f.name} is not a format this tool reads. Drop a .ubox, .sc, .pak, .json, .sse.zip or .sse4.json.`
         : (e as Error).message;
       phase = 'error';
       return;
@@ -263,7 +263,7 @@
       <input type="file" accept=".ubox,.sc,.pak,.json,.zip" onchange={(e) => take(e.currentTarget.files?.[0])} />
       <span class="cta">Choose a file</span>
     </label>
-    <p class="hint">.ubox &middot; .sc &middot; .pak &middot; .json &middot; .sse.zip</p>
+    <p class="hint">.ubox &middot; .sc &middot; .pak &middot; .json &middot; .sse.zip &middot; .sse4.json</p>
     <!-- Said where the file goes in, not only inside the folded explanation below: somebody dropping
          a save with a hand-painted planet in it should know before they start that the painting is
          not coming. -->
@@ -434,6 +434,7 @@
       </details>
     {/if}
 
+    {#if format !== 'sse4'}
     <div class="v4">
       <p class="label">In Star System Explorer 4</p>
       {#if !v4}
@@ -474,6 +475,7 @@
         <p class="hint left">SSE4 importer {v4.pin.importer}, built from SSE4 {v4.pin.sse4Commit.slice(0, 7)}.</p>
       {/if}
     </div>
+    {/if}
 
     <div class="actions">
       <button class="plainbtn" onclick={reset}>Convert another</button>

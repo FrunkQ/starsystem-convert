@@ -6,7 +6,9 @@
 // extension is still consulted, but only to break a tie the bytes genuinely cannot settle — a `.ubox`
 // and a `.pak` are both zips, and telling them apart needs the member names.
 
-export type FormatId = 'ubox' | 'spaceengine' | 'sse';
+import { looksLikeSse4 } from './sse4';
+
+export type FormatId = 'ubox' | 'spaceengine' | 'sse' | 'sse4';
 
 export interface FormatInfo {
   label: string;
@@ -19,7 +21,9 @@ export interface FormatInfo {
 export const FORMATS: Record<FormatId, FormatInfo> = {
   ubox: { label: 'Universe Sandbox', extensions: ['.ubox'], exportable: true },
   spaceengine: { label: 'SpaceEngine', extensions: ['.sc', '.pak'], exportable: true },
-  sse: { label: 'Star System Explorer', extensions: ['.json', '.sse.zip'], exportable: true }
+  sse: { label: 'Star System Explorer', extensions: ['.json', '.sse.zip'], exportable: true },
+  // Read only: SSE4 opens the Star System Explorer .json itself, through its own importer.
+  sse4: { label: 'Star System Explorer 4', extensions: ['.sse4.json'], exportable: false }
 };
 
 /** PK\x03\x04 — the local file header every zip starts with. */
@@ -57,7 +61,7 @@ export function detectFormat(fileName: string, bytes: Uint8Array): FormatId | nu
   const head = new TextDecoder('utf-8').decode(bytes.subarray(0, 4096));
   const trimmed = head.replace(/^﻿/, '').trimStart();
 
-  if (trimmed.startsWith('{')) return 'sse';
+  if (trimmed.startsWith('{')) return looksLikeSse4(head) ? 'sse4' : 'sse';
   if (SC_OPENER.test(trimmed)) return 'spaceengine';
   return null;
 }
