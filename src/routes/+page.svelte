@@ -1,8 +1,8 @@
 <script lang="ts">
   // The page uses the same module other sites load (src/lib/module), so what works here works there.
   import {
-    open, write, countBodies, formats, ConvertError,
-    type FormatId, type OpenedFile, type BodyPreview, type SseSystem, type Report
+    open, write, countBodies, formats, checkSse4, ConvertError,
+    type Sse4Check, type FormatId, type OpenedFile, type BodyPreview, type SseSystem, type Report
   } from '$lib/module';
   import { download } from '$lib/convert/output';
   import { resolveStar, systemsAround, nameOf, distanceLyOf, type SimbadRow } from '$lib/convert/realsky';
@@ -73,7 +73,7 @@
   function reset() {
     phase = 'idle'; problem = ''; bytes = null; format = null; adapter = null;
     subtitle = ''; systems = []; chosen = 0; bodies = []; result = null;
-    skyNote = ''; skyError = ''; skyCandidates = []; fromSky = false; lastNotes = [];
+    skyNote = ''; skyError = ''; skyCandidates = []; fromSky = false; lastNotes = []; v4 = null; v4Busy = false; v4Error = '';
   }
 
   async function lookUp() {
@@ -174,6 +174,18 @@
   // hundred extra objects is a real cost and most people converting a system want the system.
   let ringParticles = $state(false);
   let lastNotes = $state<string[]>([]);
+
+  // WHAT STAR SYSTEM EXPLORER 4 WILL MAKE OF IT, from SSE4's own importer (vendored as wasm, loaded
+  // on the first click). SSE4 opens the same .json; this is the account of what happens on arrival.
+  let v4 = $state<Sse4Check | null>(null);
+  let v4Busy = $state(false);
+  let v4Error = $state('');
+  async function askV4() {
+    if (!result || v4Busy) return;
+    v4Busy = true; v4Error = '';
+    try { v4 = await checkSse4(result.system); } catch (e) { v4Error = (e as Error).message; } finally { v4Busy = false; }
+  }
+  const pct = (x: number) => `${(x * 100).toPrecision(2)}%`;
 
   function save(id: FormatId) {
     if (!result) return;
@@ -422,6 +434,47 @@
       </details>
     {/if}
 
+    <div class="v4">
+      <p class="label">In Star System Explorer 4</p>
+      {#if !v4}
+        <p class="sub">SSE4 opens the Star System Explorer .json too. It keeps what the file states as authored and works the rest out again.</p>
+        <button class="choice" onclick={askV4} disabled={v4Busy}>{v4Busy ? 'Asking SSE4’s importer…' : 'Show what SSE4 will make of it'}</button>
+        {#if v4Error}<p class="problem">SSE4’s importer could not read it: {v4Error}</p>{/if}
+      {:else}
+        {@const off = v4.differences.filter((d) => !d.within)}
+        <p class="sub">
+          {v4.counts.bodies} bod{v4.counts.bodies === 1 ? 'y' : 'ies'}{#if v4.counts.constructs}, {v4.counts.constructs} construct{v4.counts.constructs === 1 ? '' : 's'}{/if},
+          {v4.counts.facts} authored facts.
+          {#if v4.differences.length}
+            SSE4 works out {v4.differences.length} value{v4.differences.length === 1 ? '' : 's'} again;
+            {off.length ? `${off.length} ${off.length === 1 ? 'comes' : 'come'} out noticeably different from the file's.` : 'all agree with the file.'}
+          {/if}
+        </p>
+        {#if off.length}
+          <details class="sub-fold">
+            <summary>{off.length} value{off.length === 1 ? '' : 's'} SSE4 works out differently</summary>
+            <ul>{#each off as d, i (i)}<li>{d.name}, {d.field}: about {pct(d.relative)} apart</li>{/each}</ul>
+          </details>
+        {/if}
+        {#if v4.unclassified.length}
+          <details class="sub-fold">
+            <summary>{v4.unclassified.length} field{v4.unclassified.length === 1 ? '' : 's'} SSE4 keeps but does not use yet</summary>
+            <ul>{#each v4.unclassified as u (u)}<li>{u}</li>{/each}</ul>
+          </details>
+        {/if}
+        {#if v4.honestyMarks}
+          <p class="sub">{v4.honestyMarks === 1 ? 'One place carries' : `${v4.honestyMarks} places carry`} a hand-set value SSE4 will mark as authored but impossible.</p>
+        {/if}
+        {#if v4.warnings.length}
+          <details class="sub-fold">
+            <summary>{v4.warnings.length} warning{v4.warnings.length === 1 ? '' : 's'}</summary>
+            <ul>{#each v4.warnings as w, i (i)}<li>{w}</li>{/each}</ul>
+          </details>
+        {/if}
+        <p class="hint left">SSE4 importer {v4.pin.importer}, built from SSE4 {v4.pin.sse4Commit.slice(0, 7)}.</p>
+      {/if}
+    </div>
+
     <div class="actions">
       <button class="plainbtn" onclick={reset}>Convert another</button>
     </div>
@@ -559,6 +612,8 @@
   .sub-fold ul { margin: 8px 0 0; padding-left: 20px; color: var(--ink-dim); }
   .sub-fold li { margin-bottom: 5px; }
   .why { color: var(--ink-faint); }
+  .v4 { margin: 22px 0 0; padding-top: 14px; border-top: 1px solid var(--edge); }
+  .v4 .sub { margin: 0 0 10px; }
 
   .folded { margin: 40px 0 0; border-top: 1px solid var(--edge); padding-top: 14px; }
   .folded summary { cursor: pointer; list-style-position: outside; color: var(--ink-dim); }

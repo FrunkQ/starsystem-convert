@@ -86,3 +86,25 @@ export interface ModuleInfo {
   version: string;
   api: number;
 }
+
+/** Where SSE4's importer came from: the SSE4 commit it was built from and the importer's version. */
+export interface Sse4Pin { sse4Commit: string; importer: string; reportFormat: string }
+
+/**
+ * What Star System Explorer 4 will make of a system, from SSE4's own importer (the one its kernel
+ * runs). The file SSE4 opens is the Star System Explorer `.json` this module writes; this says what
+ * happens to it on arrival.
+ */
+export interface Sse4Check {
+  pin: Sse4Pin;
+  counts: { systems: number; bodies: number; barycentres: number; constructs: number; facts: number };
+  /** V3 values V4 works out again, and how far apart the two answers are. */
+  differences: { name: string; field: string; v3: number; v4: number; relative: number; within: boolean }[];
+  /** Fields the importer does not know; kept as authored `v3.<name>`, but nothing reads them. */
+  unclassified: string[];
+  /** How many places carry a V3 override or anomaly, marked authored-impossible in V4. */
+  honestyMarks: number;
+  warnings: string[];
+  /** The importer's full report, as SSE4 writes it. */
+  report: unknown;
+}

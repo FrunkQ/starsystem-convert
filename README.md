@@ -29,6 +29,14 @@ converting quietly:
 - **Star System Explorer** carries things the other two have no equivalent for — ships and stations,
   Lagrange placements, tags, biospheres, GM notes — and those do not travel outward.
 
+## Star System Explorer 4
+
+SSE4 opens the Star System Explorer `.json` this tool writes, and reads it with one importer, in its
+kernel. That importer is vendored here as wasm (`src/lib/sse4/`, pinned to the SSE4 commit it was built
+from), so after a conversion the page can say what SSE4 will make of the file: what it keeps as
+authored, what it works out again and how far apart the answers are, and which fields it keeps but does
+not use yet. It loads only when asked.
+
 ## As a module, for other sites
 
 The same code is published as a browser module that other StarSystemX sites load instead of keeping

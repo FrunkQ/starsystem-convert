@@ -27,7 +27,8 @@ fs.writeFileSync(`${OUT}/convert.d.ts`, `// starsystem-convert module, API v1. G
 
 const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 const sha256 = (f) => createHash('sha256').update(fs.readFileSync(`${OUT}/${f}`)).digest('hex');
-const files = Object.fromEntries(['convert.js', 'convert.d.ts'].map((f) => [f, { sha256: sha256(f), bytes: fs.statSync(`${OUT}/${f}`).size }]));
+const names = fs.readdirSync(OUT).filter((f) => f !== 'manifest.json').sort();
+const files = Object.fromEntries(names.map((f) => [f, { sha256: sha256(f), bytes: fs.statSync(`${OUT}/${f}`).size }]));
 const manifest = { name: 'starsystem-convert', version: pkg.version, api: 1, files };
 fs.writeFileSync(`${OUT}/manifest.json`, JSON.stringify(manifest, null, 2) + '\n');
 console.log(`module ${pkg.version}: convert.js ${files['convert.js'].bytes} bytes, sha256 ${files['convert.js'].sha256.slice(0, 12)}…`);

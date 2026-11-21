@@ -12,7 +12,7 @@
 // proxy, so it stays with the page.
 import { ADAPTERS, countNodes } from '$lib/convert/adapters';
 import { detectFormat as sniff, FORMATS } from '$lib/convert/formats';
-import { OUTPUTS, writeFor } from '$lib/convert/output';
+import { OUTPUTS, writeFor, toSseJson } from '$lib/convert/output';
 import type { System } from '$lib/vendor/types';
 import {
   API_VERSION,
@@ -26,6 +26,7 @@ import {
   type ReadResult,
   type Report,
   type SseSystem,
+  type Sse4Check,
   type WriteOptions,
   type WrittenFile
 } from './api';
@@ -130,4 +131,24 @@ export function convert(fileName: string, bytes: Uint8Array, options: ConvertOpt
 /** Counts for a system that did not come through `read` (e.g. one built from the catalogues). */
 export function countBodies(system: SseSystem): Report['counts'] {
   return countNodes(system as unknown as System);
+}
+
+/**
+ * Ask Star System Explorer 4's own importer what it will make of a system. Async because the
+ * importer is wasm and is loaded only on first use (about 220 KB gzipped).
+ */
+export async function checkSse4(system: SseSystem): Promise<Sse4Check> {
+  const sse4 = await import('$lib/sse4');
+  const { report } = sse4.importV3(toSseJson(system as unknown as System));
+  return {
+    pin: sse4.pin(),
+    counts: report.counts,
+    differences: report.differences.map((d) => ({
+      name: d.name, field: d.field, v3: d.v3, v4: d.v4, relative: d.relative, within: d.within
+    })),
+    unclassified: Object.keys(report.unclassified),
+    honestyMarks: report.honesty_marks.length,
+    warnings: report.warnings,
+    report
+  };
 }
