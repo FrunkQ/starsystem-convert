@@ -1,32 +1,45 @@
 /* Star System Converter.
  *
- * THE SAME SKIN AS THE CREATOR HUB, deliberately: this tool, `explorers.starsystemx.com` and the
- * engine are one family, and somebody arriving here from a Discord link should not feel they have
- * left. The tokens below are the hub's `src/app.css` verbatim — copied rather than imported, because
- * the two sites are separate repos with separate release cadences, and a shared stylesheet across
- * that seam is a thing that breaks on somebody else's deploy.
+ * THE CHART ROOM SKIN (2026-11-21), the same as Star System Explorer 4 and the Explorers site, so
+ * the three read as one product. The colours, typefaces and the light/dark switch live in
+ * `static/skin/chart-room.css`, the one file the StarSystemX sites share, copied verbatim from the
+ * Explorers repo (loaded from app.html before this file). The names below are this site's own and
+ * every rule uses them, so the skin is a mapping here and nowhere else.
  *
- * Same performance rule too: no webfonts, no framework CSS, no icon font. One stylesheet, system
- * fonts, and a page that paints as soon as the HTML arrives.
+ * Performance still matters: the three typefaces are about 150 KB, self-hosted, and `swap`, so text
+ * paints at once in the system face and nothing waits for a font.
  */
 
 :root {
-  color-scheme: dark;
-  --bg: #0a0d14;
-  --panel: #131824;
-  --panel-2: #1a2030;
-  --edge: #26304a;
-  --ink: #e8ecf5;
-  --ink-dim: #9aa6bf;
-  --ink-faint: #6b7794;
-  --accent: #6fb3ff;
-  --accent-ink: #04101f;
-  --warn: #ffc266;
-  --bad: #ff8080;
-  --radius: 10px;
+  --bg: var(--cr-ground);
+  --panel: var(--cr-ground-raised);
+  --panel-2: var(--cr-ground-sunk);
+  --edge: var(--cr-rule);
+  /* Frames are drawn in INK: a panel or a button has an edge you can see, a divider barely. */
+  --frame: var(--cr-ink);
+  --ink: var(--cr-ink);
+  --ink-dim: var(--cr-ink-muted);
+  --ink-faint: var(--cr-ink-faint);
+  --accent: var(--cr-accent);
+  /* NOTE THE NAME: here `--accent-ink` means text ON the accent. SSE4's token of that name is the
+     accent dark enough to read as text, which is `--link` here. */
+  --accent-ink: var(--cr-on-ink);
+  --link: var(--cr-accent-ink);
+  --warn: var(--cr-warn);
+  --bad: var(--cr-bad);
+  --focus: var(--cr-focus);
+  --shadow: var(--cr-card-shadow);
+  --press: var(--cr-press-shadow);
+  --radius: var(--cr-radius);
+  --font-display: var(--cr-font-display);
+  --font-body: var(--cr-font-body);
+  --font-mono: var(--cr-font-mono);
+  --quick: var(--cr-motion-quick);
+  --ease: var(--cr-ease);
   /* Prose, not a gallery: this page is text and one drop target, so it caps far narrower than the
-     hub's 1800px. A line of explanation nobody can track across is worse than a narrow page. */
+     hub. A line of explanation nobody can track across is worse than a narrow page. */
   --max: 980px;
+  accent-color: var(--accent);
 }
 
 * { box-sizing: border-box; }
@@ -35,7 +48,7 @@ html, body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font: 16px/1.55 var(--font-body);
   /* iOS INFLATES TEXT IN LANDSCAPE unless told not to, which throws a carefully sized page out by
      a third the moment somebody turns their phone. */
   -webkit-text-size-adjust: 100%;
@@ -46,8 +59,14 @@ html, body {
 
 img, svg, video { max-width: 100%; }
 
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Headings in the chart room's display face: the one place the serif speaks. */
+h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.005em; }
+
+/* EVERY TOUCH ANSWERS (interface style 5), and the keyboard sees where it is. */
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 .skip { position: absolute; left: -9999px; }
 .skip:focus {
@@ -56,7 +75,7 @@ a:hover { text-decoration: underline; }
 }
 
 /* ---- chrome ------------------------------------------------------------------------------- */
-header { border-bottom: 1px solid var(--edge); background: var(--panel); }
+header { border-bottom: 1px solid var(--frame); background: var(--panel); }
 header nav {
   max-width: var(--max); margin: 0 auto; padding: 12px 20px;
   display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
@@ -66,17 +85,24 @@ header nav {
 .wordmark span { color: var(--ink-faint); font-weight: 500; }
 .spacer { flex: 1; }
 header nav a.plain { color: var(--ink-dim); font-size: 0.95rem; }
+header nav button.theme {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; padding: 0; background: none; color: var(--ink);
+  border: 1px solid transparent; border-radius: var(--radius); cursor: pointer;
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease);
+}
+header nav button.theme:hover { border-color: var(--frame); transform: translate(-1px, -1px); box-shadow: var(--press); }
 
 main { max-width: var(--max); margin: 0 auto; padding: 28px 20px 56px; }
-h1 { font-size: 1.75rem; font-weight: 650; letter-spacing: -0.01em; margin: 0 0 10px; }
-h2 { font-size: 1.1rem; font-weight: 650; margin: 0 0 8px; }
+h1 { font-size: 1.75rem; line-height: 1.15; margin: 0 0 10px; }
+h2 { font-size: 1.15rem; margin: 0 0 8px; }
 .lede { color: var(--ink-dim); margin: 0 0 24px; max-width: 70ch; }
 .prose { max-width: 74ch; }
 .prose p { color: var(--ink-dim); }
 
 /* ---- panels and notices ------------------------------------------------------------------- */
 .panel {
-  background: var(--panel); border: 1px solid var(--edge);
+  background: var(--panel); border: 1px solid var(--frame);
   border-radius: var(--radius); padding: 16px 18px;
 }
 .notice {
@@ -84,7 +110,7 @@ h2 { font-size: 1.1rem; font-weight: 650; margin: 0 0 8px; }
   background: var(--panel); border-radius: var(--radius);
   padding: 14px 16px; margin: 0 0 24px;
 }
-.notice h2 { font-size: 0.98rem; margin: 0 0 5px; color: var(--warn); }
+.notice h2 { font-size: 1.02rem; margin: 0 0 5px; color: var(--ink); }
 .notice p { margin: 0; color: var(--ink-dim); font-size: 0.94rem; }
 .notice p + p { margin-top: 7px; }
 
@@ -94,11 +120,20 @@ h2 { font-size: 1.1rem; font-weight: 650; margin: 0 0 8px; }
   display: inline-block;
   background: var(--accent); color: var(--accent-ink);
   padding: 8px 14px; border-radius: var(--radius); font-weight: 600;
+  border: 1px solid var(--frame);
+  /* A touched control lifts 1px onto a hard shadow (interface style 5). Transform only, so it never
+     costs layout; reduced motion keeps the shadow and drops the travel. */
+  transition: transform var(--quick) var(--ease), box-shadow var(--quick) var(--ease);
 }
-.cta:hover { text-decoration: none; filter: brightness(1.08); }
+.cta:hover { text-decoration: none; transform: translate(-1px, -1px); box-shadow: var(--press); }
+.cta:active { transform: none; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) {
+  .cta, header nav button.theme { transition: none; }
+  .cta:hover, header nav button.theme:hover { transform: none; }
+}
 
 /* ---- footer ------------------------------------------------------------------------------- */
-footer { border-top: 1px solid var(--edge); background: var(--panel); padding: 22px 20px; }
+footer { border-top: 1px solid var(--frame); background: var(--panel); padding: 22px 20px; }
 /* TWO DOORS, SIDE BY SIDE where there is room and stacked where there is not. `auto-fit` with a
    `minmax` floor does it with no media query: below about 2x260px the columns simply collapse to
    one, in reading order. Each block is a self-contained question-answer-button so neither reads as
@@ -109,7 +144,7 @@ footer .doors {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 footer .door {
-  background: var(--bg); border: 1px solid var(--edge); border-radius: var(--radius);
+  background: var(--bg); border: 1px solid var(--frame); border-radius: var(--radius);
   padding: 16px 18px;
   /* The buttons line up across both blocks however unequal the sentences above them are. */
   display: flex; flex-direction: column; align-items: flex-start;

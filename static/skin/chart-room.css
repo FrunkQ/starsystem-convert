@@ -1,0 +1,143 @@
+/* THE CHART ROOM SKIN, shared by the StarSystemX sites (Explorers, the converter).
+ *
+ * One self-contained file: the typefaces, the colour tokens, and the light/dark switch. Nothing
+ * else - no layout, no components. Each site maps its own variables onto these, so a site's pages
+ * never need to know which theme is showing.
+ *
+ * WHERE THE VALUES COME FROM: Star System Explorer 4's own chart room theme,
+ * `packages/skins/chart-room/src/themes.ts` in FrunkQ/star-system-explorer (CHART_ROOM and
+ * NIGHT_CHART). They are COPIED, not imported, on purpose: each site deploys on its own, and a skin
+ * hot-linked from another site breaks the moment that site moves. When SSE4's tokens change, copy
+ * the changed values here and to every site that carries this file.
+ *
+ * WHICH THEME SHOWS:
+ *   - by default, the device's own setting (light = Chart room, dark = Night chart)
+ *   - `<html data-theme="light">` or `data-theme="dark"` overrides it (a remembered toggle)
+ *
+ * The typefaces are the same three SSE4 ships (latin subset, @fontsource 5.3.0, SIL OFL 1.1; the
+ * licences sit beside the files). `font-display: swap`, so text paints at once in the fallback and
+ * the webfont replaces it when it arrives: a page is never held back for a font.
+ */
+
+/* ---- typefaces ---------------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Newsreader'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('./fonts/newsreader-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Newsreader'; font-style: normal; font-weight: 600; font-display: swap;
+  src: url('./fonts/newsreader-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('./fonts/ibm-plex-sans-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 500; font-display: swap;
+  src: url('./fonts/ibm-plex-sans-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 600; font-display: swap;
+  src: url('./fonts/ibm-plex-sans-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('./fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 500; font-display: swap;
+  src: url('./fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2');
+}
+
+/* ---- Chart room (light), the default ------------------------------------------------------ */
+:root {
+  color-scheme: light;
+
+  --cr-ground: #EFEAE0;
+  --cr-ground-raised: #F7F3EA;
+  /* A step between the two grounds and the rule, for a hovered row or a sunk field. Not one of
+     SSE4's named tokens: the sites need one more tone than the app's charts do. */
+  --cr-ground-sunk: #E6DFD2;
+  --cr-ink: #1E2A33;
+  --cr-ink-muted: #56626C;
+  --cr-ink-faint: #7D8790;
+  --cr-rule: #D9D1C2;
+  --cr-accent: #B4471F;
+  /* The accent dark enough to read as TEXT on the ground (links, a tag's word). */
+  --cr-accent-ink: #8A3612;
+  /* Text that sits ON ink or ON the accent. */
+  --cr-on-ink: #EFEAE0;
+  --cr-zone: rgba(127, 168, 142, 0.32);
+  --cr-zone-ink: #3F6B50;
+  --cr-focus: #1F5FA8;
+  /* Warning and refusal. Not in SSE4's chart tokens either; chosen to sit on this paper. */
+  --cr-warn: #9A6A00;
+  --cr-bad: #A8322A;
+
+  --cr-font-display: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+  --cr-font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --cr-font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --cr-line-hair: 0.75px;
+  --cr-line: 1px;
+  --cr-line-heavy: 1.6px;
+  --cr-card-shadow: 6px 6px 0 #1E2A33;
+  /* The small lift a touched control gets: the same hard shadow, a third the size. */
+  --cr-press-shadow: 2px 2px 0 #1E2A33;
+  --cr-radius: 0px;
+
+  --cr-motion-quick: 120ms;
+  --cr-motion: 200ms;
+  --cr-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ---- Night chart (dark): the device asks for it, and nobody has chosen light ------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --cr-ground: #0B1117;
+    --cr-ground-raised: #111A22;
+    --cr-ground-sunk: #18232E;
+    --cr-ink: #DCE3EA;
+    --cr-ink-muted: #9AA8B6;
+    --cr-ink-faint: #6C7A88;
+    --cr-rule: #22303D;
+    --cr-accent: #5EB8FF;
+    --cr-accent-ink: #8CCBFF;
+    --cr-on-ink: #0B1117;
+    --cr-zone: rgba(62, 140, 106, 0.22);
+    --cr-zone-ink: #7CC4A0;
+    --cr-focus: #F2A93B;
+    --cr-warn: #F2C14E;
+    --cr-bad: #FF8A80;
+    --cr-card-shadow: 6px 6px 0 #000000;
+    --cr-press-shadow: 2px 2px 0 #000000;
+  }
+}
+
+/* ---- Night chart, chosen by hand ---------------------------------------------------------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --cr-ground: #0B1117;
+  --cr-ground-raised: #111A22;
+  --cr-ground-sunk: #18232E;
+  --cr-ink: #DCE3EA;
+  --cr-ink-muted: #9AA8B6;
+  --cr-ink-faint: #6C7A88;
+  --cr-rule: #22303D;
+  --cr-accent: #5EB8FF;
+  --cr-accent-ink: #8CCBFF;
+  --cr-on-ink: #0B1117;
+  --cr-zone: rgba(62, 140, 106, 0.22);
+  --cr-zone-ink: #7CC4A0;
+  --cr-focus: #F2A93B;
+  --cr-warn: #F2C14E;
+  --cr-bad: #FF8A80;
+  --cr-card-shadow: 6px 6px 0 #000000;
+  --cr-press-shadow: 2px 2px 0 #000000;
+}
+
+/* Motion is presentation. Someone who has asked for less of it gets none. */
+@media (prefers-reduced-motion: reduce) {
+  :root { --cr-motion-quick: 0ms; --cr-motion: 0ms; }
+}
