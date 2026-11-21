@@ -1,7 +1,10 @@
 <script lang="ts">
-  import { detectFormat, FORMATS, type FormatId } from '$lib/convert/formats';
-  import { ADAPTERS, countNodes, type SourceAdapter, type ConvertResult, type BodyPreview } from '$lib/convert/adapters';
-  import { OUTPUTS, writeFor, download } from '$lib/convert/output';
+  // The page uses the same module other sites load (src/lib/module), so what works here works there.
+  import {
+    open, write, countBodies, formats, ConvertError,
+    type FormatId, type OpenedFile, type BodyPreview, type SseSystem, type Report
+  } from '$lib/module';
+  import { download } from '$lib/convert/output';
   import { resolveStar, systemsAround, nameOf, distanceLyOf, type SimbadRow } from '$lib/convert/realsky';
   import { LINKS, HOW_TO } from '$lib/links';
   import PixelText from '$lib/components/PixelText.svelte';
@@ -15,7 +18,7 @@
   let fileName = $state('');
   let bytes = $state<Uint8Array | null>(null);
   let format = $state<FormatId | null>(null);
-  let adapter = $state<SourceAdapter | null>(null);
+  let adapter = $state<OpenedFile | null>(null);
   let subtitle = $state('');
   let systems = $state<{ name: string }[]>([]);
   let chosen = $state(0);
@@ -39,9 +42,18 @@
   // mass set an endpoint. A hair of tolerance keeps the boundary body counted, and the SAME number
   // is handed to the converter so the count and the result cannot disagree.
   const effectiveThreshold = $derived(threshold * (1 - 1e-9));
-  const included = $derived(bodies.filter((b) => b.mass >= effectiveThreshold).length);
+  const included = $derived(bodies.filter((b) => b.massKg >= effectiveThreshold).length);
 
-  let result = $state<ConvertResult | null>(null);
+  interface Shown { system: SseSystem; counts: Report['counts']; assumptions: string[]; skipped: Report['skipped'] }
+  const fromReport = (system: SseSystem, r: Report): Shown =>
+    ({ system, counts: r.counts, assumptions: r.assumptions, skipped: r.skipped });
+  // Every writable format, in the order the page has always offered them.
+  const OUTPUTS = ['sse', 'spaceengine', 'ubox']
+    .map((id) => formats().find((f) => f.id === id && f.writable))
+    .filter((f) => !!f)
+    .map((f) => ({ id: f.id, label: f.label, extension: f.output!.extension, note: f.output!.note }));
+
+  let result = $state<Shown | null>(null);
 
   const EARTH = 5.972e24;
   const fmtMass = (kg: number) =>
@@ -100,7 +112,7 @@
       ...out.warnings,
       ...(out.matched ? [] : [`No system in the catalogues is named after ${star}, so the one nearest to it, ${found.name}, is shown.`])
     ];
-    result = { system: found.system, counts: countNodes(found.system), assumptions, skipped: [] };
+    result = { system: found.system as unknown as SseSystem, counts: countBodies(found.system as unknown as SseSystem), assumptions, skipped: [] };
     fileName = found.name;
     fromSky = true;
     phase = 'done';
@@ -111,34 +123,32 @@
     reset();
     fileName = f.name;
     const raw = new Uint8Array(await f.arrayBuffer());
-    const id = detectFormat(f.name, raw);
-    if (!id) {
-      problem = `${f.name} is not a format this tool reads. Drop a .ubox, .sc, .pak, .json or .sse.zip.`;
+    try {
+      adapter = open(f.name, raw);
+    } catch (e) {
+      problem = e instanceof ConvertError && e.code === 'unknown_format'
+        ? `${f.name} is not a format this tool reads. Drop a .ubox, .sc, .pak, .json or .sse.zip.`
+        : (e as Error).message;
       phase = 'error';
       return;
     }
-    bytes = raw; format = id; adapter = ADAPTERS[id];
-    try {
-      subtitle = adapter.subtitle(raw);
-      systems = adapter.systems(raw);
-      loadBodies();
-      phase = 'loaded';
-    } catch (e) {
-      problem = `${f.name} could not be read: ${(e as Error).message}`;
-      phase = 'error';
-    }
+    bytes = raw; format = adapter.format;
+    subtitle = adapter.subtitle;
+    systems = adapter.systems;
+    loadBodies();
+    phase = 'loaded';
   }
 
   function loadBodies() {
     if (!adapter || !bytes) return;
-    try { bodies = adapter.bodies(bytes, chosen); } catch { bodies = []; }
+    try { bodies = adapter.bodies(chosen); } catch { bodies = []; }
     // Fit the slider to THIS system's bodies, and start it at the recommended cut-off, clamped into
     // that range - a file whose lightest body is heavier than the recommendation starts at "all".
-    const logs = bodies.filter((b) => b.mass > 0).map((b) => Math.log10(b.mass));
+    const logs = bodies.filter((b) => b.massKg > 0).map((b) => Math.log10(b.massKg));
     if (!logs.length) return;
     logMin = Math.min(...logs);
     logMax = Math.max(...logs);
-    const start = Math.min(logMax, Math.max(logMin, Math.log10(adapter.recommendedMinMass || 1)));
+    const start = Math.min(logMax, Math.max(logMin, Math.log10(adapter.massFilter?.recommendedMinKg || 1)));
     sliderPos = logMin + logMax - start;
   }
 
@@ -151,10 +161,11 @@
     // thread. Without it the page appears frozen for the whole conversion.
     await new Promise((r) => setTimeout(r, 20));
     try {
-      result = adapter.convert(bytes, chosen, adapter.massSlider ? effectiveThreshold : 0);
+      const r = adapter.read({ system: chosen, minBodyMassKg: effectiveThreshold });
+      result = fromReport(r.system, r.report);
       phase = 'done';
     } catch (e) {
-      problem = `That file could not be converted: ${(e as Error).message}`;
+      problem = (e as Error).message;
       phase = 'error';
     }
   }
@@ -166,8 +177,8 @@
 
   function save(id: FormatId) {
     if (!result) return;
-    const file = writeFor(id, result.system, { particlesPerRing: ringParticles ? 120 : 0 });
-    lastNotes = file.notes;
+    const { file, losses } = write(result.system, id, { particlesPerRing: ringParticles ? 120 : 0 });
+    lastNotes = losses;
     download((file.text ?? file.bytes)!, file.fileName, file.mime);
   }
 
@@ -328,7 +339,7 @@
       </div>
     {/if}
 
-    {#if adapter?.massSlider && bodies.length}
+    {#if adapter?.massFilter && bodies.length}
       <div class="field">
         <span class="label">How much to bring across</span>
         <input type="range" min={logMin} max={logMax} step="any" bind:value={sliderPos} aria-label="How much to bring across" />

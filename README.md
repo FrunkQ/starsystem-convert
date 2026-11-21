@@ -29,6 +29,12 @@ converting quietly:
 - **Star System Explorer** carries things the other two have no equivalent for — ships and stations,
   Lagrange placements, tags, biospheres, GM notes — and those do not travel outward.
 
+## As a module, for other sites
+
+The same code is published as a browser module that other StarSystemX sites load instead of keeping
+their own copies: `https://convert.starsystemx.com/module/v1/convert.js`, with types and a pinning
+manifest beside it. The page on this site uses it too. See [`src/lib/module/README.md`](src/lib/module/README.md).
+
 ## No physics
 
 This tool converts; it does not simulate. Star System Explorer derives temperatures, albedo, climate
@@ -44,7 +50,8 @@ npm run dev
 ```
 
 ```bash
-npm run build     # what Cloudflare runs
+npm run build     # what Cloudflare runs (builds the module, then the site)
+npm run build:module  # the module alone, into static/module/v1/
 npm test          # vitest
 npm run check     # svelte-check
 ```
