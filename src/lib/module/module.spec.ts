@@ -117,3 +117,25 @@ describe.skipIf(!fs.existsSync(BUILT))('the built module', () => {
     expect(built.info.version).toMatch(/^\d+\.\d+\.\d+/);
   });
 });
+
+describe('checkSse4: SSE4 own importer, vendored as wasm', () => {
+  it('reports what SSE4 will make of a converted system, and names the SSE4 build', async () => {
+    const { system } = open('Testa.sc', SC).read();
+    const c = await convertModule.checkSse4(system);
+    expect(c.pin.sse4Commit).toMatch(/^[0-9a-f]{40}$/);
+    expect(c.pin.reportFormat).toBe('sse.v3-import-report/1');
+    expect(c.counts.systems).toBe(1);
+    expect(c.counts.bodies).toBeGreaterThanOrEqual(2);
+    expect(c.counts.facts).toBeGreaterThan(0);
+  });
+
+  it('reads a V3 save SSE4 itself tests against (synthetic Sol) the same way', async () => {
+    const text = fs.readFileSync('src/lib/sse4/fixtures/synthetic-sol.json', 'utf8');
+    const { system } = open('synthetic-sol.json', new TextEncoder().encode(text)).read();
+    const c = await convertModule.checkSse4(system);
+    // Sun, Earth and Moon, as SSE4's own importer tests count them (the Station is a construct).
+    expect(c.counts.bodies).toBe(3);
+    expect(c.counts.constructs).toBe(1);
+    expect(Array.isArray(c.differences)).toBe(true);
+  });
+});

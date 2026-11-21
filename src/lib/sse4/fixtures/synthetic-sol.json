@@ -1,0 +1,82 @@
+{
+  "bundleFormat": 1,
+  "id": "synthetic-sol",
+  "name": "Synthetic Sol (hand-written from the V3.1 type definitions; not a real save)",
+  "description": "Test fixture for the V3 importer. Real V3 saves stay outside the repo.",
+  "gmNotes": "GM only: never in a player view",
+  "appVersion": "3.1.0",
+  "distanceUnit": "ly",
+  "unitIsPrefix": false,
+  "mapMode": "scaled",
+  "mapGrid": { "type": "hex", "size": 1 },
+  "routes": [],
+  "generationEngine": "accrete",
+  "aFieldV3NeverHad": 42,
+  "systems": [
+    {
+      "id": "sn-sol",
+      "name": "Sol",
+      "isNameUserDefined": true,
+      "position": { "x": 0, "y": 0, "z": 0 },
+      "viewport": { "pan": { "x": 0, "y": 0 }, "zoom": 1 },
+      "system": {
+        "id": "sys-sol",
+        "name": "Sol",
+        "seed": "sol-seed",
+        "epochT0": 0,
+        "age_Gyr": 4.57,
+        "rulePackId": "std",
+        "rulePackVersion": "3.1",
+        "tags": [{ "key": "home", "origin": "manual" }],
+        "toytownFactor": 1,
+        "nodes": [
+          {
+            "id": "sun", "name": "Sun", "parentId": null, "kind": "body", "roleHint": "star",
+            "massKg": 1.98847e30, "radiusKm": 695700, "temperatureK": 5772,
+            "tags": [{ "key": "class", "value": "G2V", "origin": "physics" }],
+            "classes": ["star/G2V"]
+          },
+          {
+            "id": "earth", "name": "Earth", "parentId": "sun", "kind": "body", "roleHint": "planet",
+            "massKg": 5.9722e24, "radiusKm": 6371.0, "rotation_period_hours": 23.9345, "axial_tilt_deg": 23.44,
+            "orbit": {
+              "hostId": "sun", "t0": 0, "hostMu": 1.32712440018e20, "n_rad_per_s": 1.99098659e-7,
+              "elements": { "a_AU": 1.0, "e": 0.0167, "i_deg": 0.0, "Omega_deg": 0.0, "omega_deg": 102.9, "M0_rad": 0.0 },
+              "seed": "x"
+            },
+            "densityGcm3": 5.514, "calculatedGravity_ms2": 9.82, "equilibriumTempK": 255, "albedo": 0.306,
+            "hydrosphere": { "coverage": 0.71, "depth_m": 3688, "composition": "water" },
+            "atmosphere": { "name": "Air", "main": "N2", "pressure_bar": 1.013, "composition": { "N2": 0.78, "O2": 0.21 } },
+            "makeup": { "metal": 0.32, "rock": 0.68 },
+            "tags": [
+              { "key": "habitable", "origin": "physics" },
+              { "key": "capital", "origin": "manual", "secret": true },
+              { "key": "ocean", "origin": "physics", "override": true }
+            ],
+            "gmNotes": "the cult hides here",
+            "description": "Blue and green.",
+            "image": "earth.png",
+            "placementHealCount": 3
+          },
+          {
+            "id": "moon", "name": "Moon", "parentId": "earth", "kind": "body", "roleHint": "moon",
+            "massKg": 7.346e22, "radiusKm": 1737.4,
+            "orbit": {
+              "hostId": "earth", "t0": 0, "hostMu": 3.986004418e14,
+              "elements": { "a_AU": 0.00256955529, "e": 0.0549, "i_deg": 5.145, "Omega_deg": 0, "omega_deg": 0, "M0_rad": 0 }
+            },
+            "densityGcm3": 3.0,
+            "overrides": { "densityGcm3": 3.0 },
+            "anomalies": ["density set below physics"]
+          },
+          {
+            "id": "iss", "name": "Station", "parentId": "earth", "kind": "construct", "roleHint": "construct",
+            "physical_parameters": { "massKg": 420000 }, "crew": { "current": 7 },
+            "orbit": { "hostId": "earth", "t0": 0, "elements": { "a_AU": 4.5e-5, "e": 0.0005, "i_deg": 51.6, "Omega_deg": 0, "omega_deg": 0, "M0_rad": 0 } },
+            "autopilotStuckReason": "none"
+          }
+        ]
+      }
+    }
+  ]
+}

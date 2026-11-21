@@ -11,6 +11,8 @@ import { readFileSync } from 'node:fs';
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
 
 export default defineConfig({
+  // SSE4's importer is wasm (src/lib/sse4), inlined with `?inline` so it rides in its own lazy chunk.
+  assetsInclude: ['**/*.wasm'],
   resolve: {
     alias: {
       $lib: fileURLToPath(new URL('./src/lib', import.meta.url)),
@@ -30,6 +32,8 @@ export default defineConfig({
       entry: fileURLToPath(new URL('./src/lib/module/index.ts', import.meta.url)),
       formats: ['es'],
       fileName: () => 'convert.js'
-    }
+    },
+    // SSE4's importer (src/lib/sse4) is a separate chunk, fetched only when checkSse4 is called.
+    rollupOptions: { output: { chunkFileNames: 'sse4-importer-[hash].js' } }
   }
 });
