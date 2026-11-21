@@ -470,9 +470,9 @@
   .pixel-title { line-height: 0; margin: 4px 0 18px; color: var(--ink); }
 
   .drop {
-    border: 1px dashed var(--edge); border-radius: var(--radius);
+    border: 1.6px dashed var(--frame); border-radius: var(--radius);
     padding: 38px 24px; text-align: center; background: var(--panel);
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color var(--quick) var(--ease), background var(--quick) var(--ease);
   }
   .drop.dragging { border-color: var(--accent); background: var(--panel-2); }
   .drop-title { margin: 0 0 14px; color: var(--ink-dim); }
@@ -499,10 +499,11 @@
 
   .choices { display: flex; flex-wrap: wrap; gap: 8px; }
   .choice {
-    background: var(--panel-2); border: 1px solid var(--edge); border-radius: var(--radius);
+    background: var(--panel); border: 1px solid var(--edge); border-radius: var(--radius);
     color: var(--ink-dim); padding: 6px 12px; font: inherit; font-size: 0.9rem; cursor: pointer;
   }
-  .choice.on { border-color: var(--accent); color: var(--ink); }
+  .choice:hover { border-color: var(--frame); color: var(--ink); }
+  .choice.on { border-color: var(--frame); background: var(--ink); color: var(--accent-ink); }
 
   .actions { margin: 22px 0 0; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   button.cta { border: 0; font: inherit; font-weight: 600; cursor: pointer; }
@@ -527,7 +528,7 @@
   .skyform { margin: 14px 0 0; display: flex; gap: 10px; flex-wrap: wrap; }
   .skyform input {
     flex: 1 1 220px; min-width: 0;
-    background: var(--bg); border: 1px solid var(--edge); border-radius: var(--radius);
+    background: var(--bg); border: 1px solid var(--frame); border-radius: var(--radius);
     color: var(--ink); font: inherit; padding: 8px 12px;
   }
   .skyform input:focus { outline: none; border-color: var(--accent); }
