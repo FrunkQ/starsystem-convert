@@ -25,3 +25,11 @@ main = ".svelte-kit/cloudflare/_worker.js"
 [assets]
 directory = ".svelte-kit/cloudflare"
 binding = "ASSETS"
+
+# BUILD BEFORE EVERY UPLOAD. Workers Builds runs the dashboard's build command only on the production
+# branch; a preview build of a pull request goes straight to `npx wrangler versions upload`, which then
+# finds no `.svelte-kit/cloudflare` and fails (seen on PR 1, 21 Nov 2026). Wrangler runs this command
+# itself before `deploy`, `versions upload` and `dev`, so every path builds. On production it means the
+# site is built twice, about ten seconds, which is cheaper than a preview that never works.
+[build]
+command = "npm run build"

@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": ".svelte-kit/module-types",
+    "sourceMap": false,
+    "types": [
+      "vite/client"
+    ]
+  },
+  "include": [
+    ".svelte-kit/ambient.d.ts",
+    "src/lib/module/index.ts",
+    "src/lib/module/api.ts"
+  ]
+}

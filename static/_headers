@@ -1,0 +1,5 @@
+# The module is loaded by other StarSystemX sites (Star System Explorer 4, Explorers) straight from
+# here, so it is served to any origin. Nothing else on this site is.
+/module/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=300

@@ -1,16 +1,17 @@
 {
   "name": "starsystem-convert",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Convert star systems between Universe Sandbox, SpaceEngine and Star System Explorer, in your browser.",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "node scripts/build-module.mjs && vite build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:module": "node scripts/build-module.mjs"
   },
   "devDependencies": {
     "@sveltejs/adapter-cloudflare": "^5.0.0",
